@@ -15,54 +15,92 @@ export const THEME_PRESETS = [
   {
     id: 'nebula',
     name: 'NEBULA',
-    tagline: 'Futuristic Deep-Space AI',
-    description: 'Deep cosmic canvas with soft purple-blue atmospheric lighting and starry particle depth.',
+    tagline: 'Cosmic Intelligence',
+    subtitle: 'Flagship Deep Space AI',
+    description: 'Deep cosmic canvas with soft purple-blue nebula fields, floating stars, cosmic dust, and constellation dots.',
     bgBase: '#0B0E17',
     bgSurface: 'rgba(16, 24, 39, 0.85)',
-    border: 'rgba(99, 102, 241, 0.25)',
-    glow: 'rgba(139, 92, 246, 0.3)',
-    type: 'dark',
+    border: 'rgba(99, 102, 241, 0.28)',
+    glow: 'rgba(139, 92, 246, 0.35)',
     paletteGradient: 'linear-gradient(135deg, #0B0E17 0%, #1E1035 50%, #0F172A 100%)',
-    chipGradient: 'linear-gradient(135deg, #8B5CF6, #3B82F6)'
+    previewBadge: 'Cosmic Stars & Dust',
+    primaryColor: '#8B5CF6',
+    secondaryColor: '#38BDF8'
   },
   {
-    id: 'daylight',
-    name: 'DAYLIGHT',
-    tagline: 'Clean & Calm Productivity',
-    description: 'Warm white and soft neutral canvas with crisp readable typography and delicate shadows.',
-    bgBase: '#F8FAFC',
-    bgSurface: 'rgba(255, 255, 255, 0.95)',
-    border: 'rgba(226, 232, 240, 0.9)',
-    glow: 'rgba(56, 189, 248, 0.1)',
-    type: 'light',
-    paletteGradient: 'linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 50%, #E2E8F0 100%)',
-    chipGradient: 'linear-gradient(135deg, #0284C7, #38BDF8)'
+    id: 'cryon',
+    name: 'CRYON',
+    tagline: 'Frozen Digital World',
+    subtitle: 'Crystalline Ice World',
+    description: 'Deep glacial obsidian with floating translucent ice shards, crystalline diamond fragments, and cold blue refractions.',
+    bgBase: '#030C16',
+    bgSurface: 'rgba(7, 26, 44, 0.85)',
+    border: 'rgba(56, 189, 248, 0.32)',
+    glow: 'rgba(14, 165, 233, 0.38)',
+    paletteGradient: 'linear-gradient(135deg, #030C16 0%, #082F49 50%, #0C4A6E 100%)',
+    previewBadge: 'Ice Crystals & Shards',
+    primaryColor: '#38BDF8',
+    secondaryColor: '#E0F2FE'
   },
   {
-    id: 'aurora',
-    name: 'AURORA',
-    tagline: 'Luminous Glassmorphism',
-    description: 'Deep emerald, cyan, and violet atmospheric aurora fields with translucent glass panels.',
-    bgBase: '#06131A',
-    bgSurface: 'rgba(12, 27, 36, 0.75)',
-    border: 'rgba(45, 212, 191, 0.3)',
-    glow: 'rgba(16, 185, 129, 0.35)',
-    type: 'dark',
-    paletteGradient: 'linear-gradient(135deg, #06131A 0%, #0D282E 50%, #161F38 100%)',
-    chipGradient: 'linear-gradient(135deg, #10B981, #06B6D4)'
+    id: 'verdant',
+    name: 'VERDANT',
+    tagline: 'Living Intelligence',
+    subtitle: 'Organic Bioluminescent Core',
+    description: 'Deep forest canvas with floating organic leaves, glowing golden pollen spores, and gentle flowing biomorphic currents.',
+    bgBase: '#04120A',
+    bgSurface: 'rgba(6, 32, 18, 0.85)',
+    border: 'rgba(16, 185, 129, 0.32)',
+    glow: 'rgba(52, 211, 153, 0.35)',
+    paletteGradient: 'linear-gradient(135deg, #04120A 0%, #064E3B 50%, #022C22 100%)',
+    previewBadge: 'Organic Leaves & Spores',
+    primaryColor: '#10B981',
+    secondaryColor: '#F59E0B'
   },
   {
-    id: 'void',
-    name: 'VOID',
-    tagline: 'Ultra-Black OLED Minimal',
-    description: 'Pure pitch-black zero-distraction workspace with high contrast and sharp minimal contours.',
-    bgBase: '#000000',
-    bgSurface: 'rgba(10, 10, 10, 0.95)',
-    border: 'rgba(255, 255, 255, 0.15)',
-    glow: 'rgba(255, 255, 255, 0.08)',
-    type: 'dark',
-    paletteGradient: 'linear-gradient(135deg, #000000 0%, #080808 50%, #121212 100%)',
-    chipGradient: 'linear-gradient(135deg, #F59E0B, #EF4444)'
+    id: 'inferno',
+    name: 'INFERNO',
+    tagline: 'Controlled Energy',
+    subtitle: 'Kinetic Magma & Embers',
+    description: 'Obsidian charcoal base with upward floating fiery embers, warm magma sparks, and subtle heat haze gradients.',
+    bgBase: '#0C0605',
+    bgSurface: 'rgba(36, 12, 10, 0.85)',
+    border: 'rgba(239, 68, 68, 0.32)',
+    glow: 'rgba(249, 115, 22, 0.38)',
+    paletteGradient: 'linear-gradient(135deg, #0C0605 0%, #450A0A 50%, #7C2D12 100%)',
+    previewBadge: 'Rising Embers & Sparks',
+    primaryColor: '#F97316',
+    secondaryColor: '#EF4444'
+  },
+  {
+    id: 'eclipse',
+    name: 'ECLIPSE',
+    tagline: 'Celestial Contrast',
+    subtitle: 'Orbital Rings & Gold Arcs',
+    description: 'Pitch obsidian void illuminated by a subtle celestial eclipse corona, thin planetary orbital rings, and golden light arcs.',
+    bgBase: '#050508',
+    bgSurface: 'rgba(18, 16, 26, 0.90)',
+    border: 'rgba(217, 119, 6, 0.30)',
+    glow: 'rgba(234, 179, 8, 0.30)',
+    paletteGradient: 'linear-gradient(135deg, #050508 0%, #18181B 50%, #27272A 100%)',
+    previewBadge: 'Orbital Rings & Halo',
+    primaryColor: '#EAB308',
+    secondaryColor: '#A855F7'
+  },
+  {
+    id: 'ethereal',
+    name: 'ETHEREAL',
+    tagline: 'Dreamlike Digital Space',
+    subtitle: 'Floating Clouds & Light Orbs',
+    description: 'Dreamy midnight indigo with translucent atmospheric clouds, glowing light orbs, pearl reflections, and soft luminous ribbons.',
+    bgBase: '#080A18',
+    bgSurface: 'rgba(23, 21, 46, 0.85)',
+    border: 'rgba(192, 132, 252, 0.30)',
+    glow: 'rgba(232, 121, 249, 0.35)',
+    paletteGradient: 'linear-gradient(135deg, #080A18 0%, #2E1065 50%, #3B0764 100%)',
+    previewBadge: 'Luminous Clouds & Orbs',
+    primaryColor: '#C084FC',
+    secondaryColor: '#F472B6'
   }
 ];
 
@@ -70,12 +108,16 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setThemeState] = useState(() => {
     const saved = localStorage.getItem('nexus_theme_preset');
     if (saved && THEME_PRESETS.some(t => t.id === saved)) return saved;
-    // Map legacy names to new identities
+    // Map legacy names to new visual identities
     if (saved === 'midnight') return 'nebula';
-    if (saved === 'light') return 'daylight';
-    if (saved === 'aurora') return 'aurora';
-    if (saved === 'amoled') return 'void';
+    if (saved === 'daylight' || saved === 'light') return 'cryon';
+    if (saved === 'aurora') return 'ethereal';
+    if (saved === 'void' || saved === 'amoled') return 'eclipse';
     return 'nebula';
+  });
+
+  const [intensity, setIntensityState] = useState(() => {
+    return localStorage.getItem('nexus_atmosphere_intensity') || 'balanced';
   });
 
   const [accentColor, setAccentColorState] = useState(() => {
@@ -87,6 +129,11 @@ export const ThemeProvider = ({ children }) => {
   const setTheme = (newThemeId) => {
     setThemeState(newThemeId);
     localStorage.setItem('nexus_theme_preset', newThemeId);
+  };
+
+  const setIntensity = (newIntensity) => {
+    setIntensityState(newIntensity);
+    localStorage.setItem('nexus_atmosphere_intensity', newIntensity);
   };
 
   const setAccentColor = (newColor) => {
@@ -101,23 +148,22 @@ export const ThemeProvider = ({ children }) => {
     // Remove old classes
     root.classList.remove(
       'theme-nebula',
+      'theme-cryon',
+      'theme-verdant',
+      'theme-inferno',
+      'theme-eclipse',
+      'theme-ethereal',
       'theme-daylight',
       'theme-aurora',
       'theme-void',
       'theme-midnight',
       'theme-light',
-      'theme-amoled',
-      'dark'
+      'theme-amoled'
     );
 
-    // Apply active theme class
+    // Apply active theme class & dark mode
     root.classList.add(`theme-${theme}`);
-
-    if (currentThemePreset.type === 'light') {
-      root.classList.remove('dark');
-    } else {
-      root.classList.add('dark');
-    }
+    root.classList.add('dark');
 
     // Set CSS custom properties
     root.style.setProperty('--accent-color', accentColor);
@@ -125,6 +171,8 @@ export const ThemeProvider = ({ children }) => {
     root.style.setProperty('--theme-bg-surface', currentThemePreset.bgSurface);
     root.style.setProperty('--theme-border', currentThemePreset.border);
     root.style.setProperty('--theme-glow', currentThemePreset.glow);
+    root.style.setProperty('--theme-primary', currentThemePreset.primaryColor);
+    root.style.setProperty('--theme-secondary', currentThemePreset.secondaryColor);
 
   }, [theme, accentColor, currentThemePreset]);
 
@@ -133,6 +181,8 @@ export const ThemeProvider = ({ children }) => {
       value={{
         theme,
         setTheme,
+        intensity,
+        setIntensity,
         currentThemePreset,
         accentColor,
         setAccentColor,

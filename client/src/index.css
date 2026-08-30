@@ -6,49 +6,83 @@
 :root {
   --theme-bg-base: #0B0E17;
   --theme-bg-surface: rgba(16, 24, 39, 0.85);
-  --theme-border: rgba(99, 102, 241, 0.25);
-  --theme-glow: rgba(139, 92, 246, 0.3);
+  --theme-border: rgba(99, 102, 241, 0.28);
+  --theme-glow: rgba(139, 92, 246, 0.35);
   --accent-color: #A855F7;
+  --theme-primary: #8B5CF6;
+  --theme-secondary: #38BDF8;
 }
 
-/* Theme 1: NEBULA (Deep Space Futuristic AI) */
+/* 1. NEBULA — Cosmic Intelligence */
 html.theme-nebula {
   --theme-bg-base: #0B0E17;
   --theme-bg-surface: rgba(16, 24, 39, 0.85);
-  --theme-border: rgba(99, 102, 241, 0.25);
+  --theme-border: rgba(99, 102, 241, 0.28);
   --theme-glow: rgba(139, 92, 246, 0.35);
+  --theme-primary: #8B5CF6;
+  --theme-secondary: #38BDF8;
   background-color: #0B0E17;
   color: #F8FAFC;
 }
 
-/* Theme 2: DAYLIGHT (Clean Productivity Light) */
-html.theme-daylight {
-  --theme-bg-base: #F8FAFC;
-  --theme-bg-surface: rgba(255, 255, 255, 0.95);
-  --theme-border: rgba(226, 232, 240, 0.9);
-  --theme-glow: rgba(56, 189, 248, 0.15);
-  background-color: #F8FAFC;
-  color: #0F172A;
+/* 2. CRYON — Frozen Digital World */
+html.theme-cryon {
+  --theme-bg-base: #030C16;
+  --theme-bg-surface: rgba(7, 26, 44, 0.85);
+  --theme-border: rgba(56, 189, 248, 0.32);
+  --theme-glow: rgba(14, 165, 233, 0.38);
+  --theme-primary: #38BDF8;
+  --theme-secondary: #E0F2FE;
+  background-color: #030C16;
+  color: #F0F9FF;
 }
 
-/* Theme 3: AURORA (Luminous Glassmorphism) */
-html.theme-aurora {
-  --theme-bg-base: #06131A;
-  --theme-bg-surface: rgba(12, 27, 36, 0.75);
-  --theme-border: rgba(45, 212, 191, 0.3);
-  --theme-glow: rgba(16, 185, 129, 0.4);
-  background-color: #06131A;
-  color: #F0FDFA;
+/* 3. VERDANT — Living Intelligence */
+html.theme-verdant {
+  --theme-bg-base: #04120A;
+  --theme-bg-surface: rgba(6, 32, 18, 0.85);
+  --theme-border: rgba(16, 185, 129, 0.32);
+  --theme-glow: rgba(52, 211, 153, 0.35);
+  --theme-primary: #10B981;
+  --theme-secondary: #F59E0B;
+  background-color: #04120A;
+  color: #ECFDF5;
 }
 
-/* Theme 4: VOID (Ultra-Black OLED Minimal) */
-html.theme-void {
-  --theme-bg-base: #000000;
-  --theme-bg-surface: rgba(10, 10, 10, 0.95);
-  --theme-border: rgba(255, 255, 255, 0.15);
-  --theme-glow: rgba(255, 255, 255, 0.08);
-  background-color: #000000;
-  color: #FFFFFF;
+/* 4. INFERNO — Controlled Energy */
+html.theme-inferno {
+  --theme-bg-base: #0C0605;
+  --theme-bg-surface: rgba(36, 12, 10, 0.85);
+  --theme-border: rgba(239, 68, 68, 0.32);
+  --theme-glow: rgba(249, 115, 22, 0.38);
+  --theme-primary: #F97316;
+  --theme-secondary: #EF4444;
+  background-color: #0C0605;
+  color: #FFF7ED;
+}
+
+/* 5. ECLIPSE — Celestial Contrast */
+html.theme-eclipse {
+  --theme-bg-base: #050508;
+  --theme-bg-surface: rgba(18, 16, 26, 0.90);
+  --theme-border: rgba(217, 119, 6, 0.30);
+  --theme-glow: rgba(234, 179, 8, 0.30);
+  --theme-primary: #EAB308;
+  --theme-secondary: #A855F7;
+  background-color: #050508;
+  color: #FAFAFA;
+}
+
+/* 6. ETHEREAL — Dreamlike Digital Space */
+html.theme-ethereal {
+  --theme-bg-base: #080A18;
+  --theme-bg-surface: rgba(23, 21, 46, 0.85);
+  --theme-border: rgba(192, 132, 252, 0.30);
+  --theme-glow: rgba(232, 121, 249, 0.35);
+  --theme-primary: #C084FC;
+  --theme-secondary: #F472B6;
+  background-color: #080A18;
+  color: #FAF5FF;
 }
 
 body {
@@ -80,7 +114,7 @@ code, pre {
   background: rgba(140, 140, 150, 0.6);
 }
 
-/* Glass Panels */
+/* Glass Panels with theme border */
 .glass-panel {
   background: var(--theme-bg-surface);
   backdrop-filter: blur(20px);
@@ -88,15 +122,20 @@ code, pre {
   border: 1px solid var(--theme-border);
 }
 
-/* Keyframe animations */
+/* Atmospheric Animations */
 @keyframes floatSlow {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(3deg); }
+  50% { transform: translateY(-12px) rotate(4deg); }
 }
 
 @keyframes pulseAtmosphere {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.05); }
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .animate-float-slow {
@@ -105,6 +144,10 @@ code, pre {
 
 .animate-pulse-atmosphere {
   animation: pulseAtmosphere 10s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: rotateSlow 40s linear infinite;
 }
 
 /* Reduced motion preference */
