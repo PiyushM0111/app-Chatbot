@@ -68,10 +68,10 @@ const detectLanguage = (text, defaultLang = 'auto') => {
 
   const hinglishTokens = [
     'kya', 'hai', 'hain', 'kaise', 'karo', 'karein', 'nahi', 'nhi', 'bhai', 'yaar',
-    'batao', 'samjhao', 'mujhe', 'mera', 'meri', 'mere', 'tum', 'aap', 'kaun', 'kyu',
+    'batao', 'samjhao', 'samjha', 'samjhe', 'mujhe', 'mera', 'meri', 'mere', 'tum', 'aap', 'kaun', 'kyu',
     'kyun', 'achha', 'theek', 'bolo', 'krna', 'hoga', 'raha', 'rahi', 'kuch', 'bhi',
     'shukriya', 'dhanyawad', 'namaste', 'kaam', 'karte', 'karna', 'padega', 'sahi',
-    'scene', 'kaisa', 'matlab', 'wala', 'wali', 'wale', 'chahiye', 'bol', 'dekh', 'brooooo'
+    'scene', 'kaisa', 'matlab', 'wala', 'wali', 'wale', 'chahiye', 'bol', 'dekh', 'me', 'mein', 'bana', 'banao', 'brooooo'
   ];
   const words = tLower.split(/\s+/);
   const isHinglish = words.some(w => hinglishTokens.includes(w.replace(/[.,?!]/g, '')));
@@ -221,19 +221,6 @@ const getIntelligentLocalBrain = (prompt, history, language = 'en', mode = 'gene
       `*(Note: Pluto was reclassified as a dwarf planet in 2006.)*`;
   }
 
-  // Python Loops
-  if (pLower.includes('loop') || pLower.includes('for loop') || pLower.includes('while loop')) {
-    if (detected === 'hinglish') {
-      return `Haan bhai, simple way mein samajh:\n\n` +
-        `Loop ka matlab hota hai **kisi kaam ko baar-baar repeat karna** bina baar-baar code likhe.\n\n` +
-        `\`\`\`python\nfor i in range(1, 6):\n    print(f"Counting: {i}")\n\`\`\`\n\n` +
-        `Simple funda: \`for\` loop range/list ke liye best hai aur \`while\` condition-based looping ke liye.`;
-    }
-    return `In Python, a **loop** is used to execute a block of code repeatedly.\n\n` +
-      `\`\`\`python\nfor i in range(1, 6):\n    print(f"Number: {i}")\n\`\`\`\n\n` +
-      `Use \`for\` loops for iterables and \`while\` loops when looping depends on a boolean condition.`;
-  }
-
   // Greetings & Acknowledgements
   const isGreeting = (
     pLower === 'hi' || pLower === 'hello' || pLower === 'hey' ||
@@ -369,7 +356,7 @@ router.post('/:id/messages', async (req, res) => {
 
           const chat = model.startChat({
             history: chatHistory,
-            generationConfig: { maxOutputTokens: 3000, temperature: 0.7 }
+            generationConfig: { maxOutputTokens: 8192, temperature: 0.7 }
           });
 
           if (stream) {

@@ -212,6 +212,39 @@ const runCompleteAISuite = async () => {
       'Topic Collision D: "Python me loop samjha." → Python tutorial code'
     );
 
+    // 6. Deep Topic Completeness: Python Functions Deep Dive
+    const pyFuncRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Teach me Python functions deeply.'
+    }, token);
+    assert(
+      pyFuncRes.status === 200 &&
+      pyFuncRes.data.aiMessage.content.includes('*args') &&
+      pyFuncRes.data.aiMessage.content.toLowerCase().includes('decorator'),
+      'Smart Depth: "Teach me Python functions deeply" → Comprehensive tutorial with decorators & args'
+    );
+
+    // 7. Deep Architecture: Complete Authentication System
+    const authSysRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Build a complete login system.'
+    }, token);
+    assert(
+      authSysRes.status === 200 &&
+      authSysRes.data.aiMessage.content.includes('bcrypt') &&
+      authSysRes.data.aiMessage.content.includes('jwt.sign'),
+      'Smart Architecture: "Build a complete login system" → Complete production auth implementation'
+    );
+
+    // 8. Cybersecurity Complete Roadmap
+    const cyberRoadmapRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Explain cybersecurity from beginner to advanced.'
+    }, token);
+    assert(
+      cyberRoadmapRes.status === 200 &&
+      cyberRoadmapRes.data.aiMessage.content.includes('CIA Triad') &&
+      cyberRoadmapRes.data.aiMessage.content.includes('Roadmap'),
+      'Smart Depth: "Explain cybersecurity from beginner to advanced" → Complete structured roadmap'
+    );
+
     // =========================================================================
     // SECTION 3: MULTI-TURN IMAGE CONTINUITY
     // =========================================================================
