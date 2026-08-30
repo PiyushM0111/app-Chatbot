@@ -164,6 +164,22 @@ router.get('/:id/export', async (req, res) => {
       return res.json({ conversation, messages });
     }
 
+    if (format === 'txt') {
+      let txt = `${conversation.title.toUpperCase()}\n`;
+      txt += `Exported: ${new Date().toLocaleString()}\n`;
+      txt += `Mode: ${conversation.mode} | Language: ${conversation.language}\n`;
+      txt += `========================================================\n\n`;
+
+      messages.forEach((msg) => {
+        const sender = msg.role === 'user' ? 'USER' : 'AI';
+        txt += `[${sender} - ${new Date(msg.created_at).toLocaleTimeString()}]\n${msg.content}\n\n--------------------------------------------------------\n\n`;
+      });
+
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(conversation.title)}.txt"`);
+      return res.send(txt);
+    }
+
     // Markdown export
     let md = `# ${conversation.title}\n\n`;
     md += `*Exported on: ${new Date().toLocaleString()}*\n`;

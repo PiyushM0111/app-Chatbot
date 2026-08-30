@@ -16,7 +16,8 @@ const MessageItem = ({
   isRegenerating,
   onOpenLightbox,
   onEditImage,
-  onRegenerateImage
+  onRegenerateImage,
+  onSelectSuggestion
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedCodeIndex, setCopiedCodeIndex] = useState(null);
@@ -370,6 +371,23 @@ const MessageItem = ({
               </>
             )}
           </div>
+
+          {/* Interactive Contextual Follow-Up Suggestions (Section 25) */}
+          {isLastAiMessage && message.suggestions && message.suggestions.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2.5 pt-1 animate-fadeIn">
+              {message.suggestions.map((suggestion, sIdx) => (
+                <button
+                  key={sIdx}
+                  type="button"
+                  onClick={() => onSelectSuggestion && onSelectSuggestion(suggestion)}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 hover:scale-105 active:scale-95 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Sparkles className="w-3 h-3 text-purple-400" />
+                  <span>{suggestion}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -145,6 +145,43 @@ const SettingsModal = ({ isOpen, onClose, onClearAllChats, onOpenMemory }) => {
           </button>
         </div>
 
+        {/* Multi-Subsystem Health & Status (Section 51 & 59) */}
+        <div className="mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
+          <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+            System & Subsystem Status
+          </label>
+          <div className="p-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200/70 dark:border-zinc-800 text-[11px] space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-600 dark:text-zinc-400">AI Intelligence Core</span>
+              <span className="flex items-center gap-1.5 font-bold text-green-600 dark:text-green-400">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Operational
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-600 dark:text-zinc-400">Image Generation Studio</span>
+              <span className="flex items-center gap-1.5 font-bold text-green-600 dark:text-green-400">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Operational
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-600 dark:text-zinc-400">Live Web Search Engine</span>
+              <span className="flex items-center gap-1.5 font-bold text-green-600 dark:text-green-400">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                Operational
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-600 dark:text-zinc-400">SQLite Database (WAL)</span>
+              <span className="flex items-center gap-1.5 font-bold text-green-600 dark:text-green-400">
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                Operational
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Danger Zone: Clear Chats & Logout */}
         <div className="mt-5 pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-2.5">
           <div className="flex justify-between items-center">

@@ -508,6 +508,7 @@ function App() {
           onOpenLightbox={(url, alt) => setLightboxData({ isOpen: true, url, alt })}
           onEditImage={(subj) => setInputMessage(`Modify this image of ${subj}: make it `)}
           onRegenerateImage={(subj) => handleSendMessage(`Create another variation of ${subj}`)}
+          onSelectSuggestion={(s) => handleSendMessage(s)}
         />
       </div>
 

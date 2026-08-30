@@ -8,6 +8,7 @@ import { buildSmartContext } from '../ai/contextManager.js';
 import { routeAndExecuteTool } from '../ai/toolRouter.js';
 import { resolveTopicKnowledge } from '../ai/knowledgeEngine.js';
 import { validateAndRefineResponse } from '../ai/responseGuard.js';
+import { generateFollowUpSuggestions } from '../ai/suggestionEngine.js';
 
 const router = express.Router();
 router.use(authenticateToken);
@@ -428,8 +429,9 @@ router.post('/:id/messages', async (req, res) => {
     const updatedUserMessage = await get('SELECT * FROM messages WHERE id = ?', [userMessageId]);
     const updatedAiMessage = await get('SELECT * FROM messages WHERE id = ?', [aiMessageId]);
 
+    const suggestions = generateFollowUpSuggestions(aiResponseText, intentData?.intent || 'chat', aiAttachments.length > 0);
     const userMessageParsed = { ...updatedUserMessage, attachments };
-    const aiMessageParsed = { ...updatedAiMessage, attachments: aiAttachments };
+    const aiMessageParsed = { ...updatedAiMessage, attachments: aiAttachments, suggestions };
 
     if (stream) {
       res.write(`data: ${JSON.stringify({ done: true, userMessage: userMessageParsed, aiMessage: aiMessageParsed, conversationTitle: conversation.title })}\n\n`);

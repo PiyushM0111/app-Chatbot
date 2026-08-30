@@ -15,7 +15,8 @@ const ChatArea = ({
   isRegenerating,
   onOpenLightbox,
   onEditImage,
-  onRegenerateImage
+  onRegenerateImage,
+  onSelectSuggestion
 }) => {
   const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
@@ -74,6 +75,7 @@ const ChatArea = ({
                     onOpenLightbox={onOpenLightbox}
                     onEditImage={onEditImage}
                     onRegenerateImage={onRegenerateImage}
+                    onSelectSuggestion={onSelectSuggestion}
                   />
                 );
               })}
