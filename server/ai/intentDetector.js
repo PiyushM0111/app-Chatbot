@@ -124,7 +124,17 @@ export const classifyIntent = (input) => {
   }
 
   // =========================================================================
-  // 7. General Chat & Educational Question Answering
+  // 7. Live Web Search & Lookups
+  // =========================================================================
+  if (
+    lower.startsWith('/search') || lower.startsWith('search the web for') || lower.startsWith('search for ') ||
+    lower.startsWith('look up ') || lower.startsWith('latest news about') || lower.startsWith('web pe search kar')
+  ) {
+    return { intent: 'web_search', entities: { query: clean } };
+  }
+
+  // =========================================================================
+  // 8. General Chat & Educational Question Answering
   // =========================================================================
   return { intent: 'chat', entities: {} };
 };

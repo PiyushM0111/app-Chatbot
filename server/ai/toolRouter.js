@@ -3,6 +3,7 @@ import { evaluateCalculation } from '../tools/calculator.js';
 import { interpretImageRequest } from '../tools/imageGen.js';
 import { buildSoftwareProject } from '../tools/projectBuilder.js';
 import { generateQuiz, evaluateQuizAnswers, getCurriculumTopics } from '../tools/learningTutor.js';
+import { executeWebSearch } from '../tools/webSearch.js';
 import { saveUserMemory, deleteUserMemory, clearAllUserMemories, getUserMemories } from './memoryManager.js';
 import { run, get } from '../db.js';
 import { randomUUID } from 'crypto';
@@ -145,6 +146,16 @@ export const routeAndExecuteTool = async (intentData, userId, conversationId, us
     return {
       handled: true,
       resultText: fixResult
+    };
+  }
+
+  // 9. Live Web Search & External Lookups
+  if (intent === 'web_search') {
+    const searchData = await executeWebSearch(entities.query || userPrompt);
+    return {
+      handled: true,
+      resultText: searchData.formattedResponse,
+      responseType: 'text'
     };
   }
 

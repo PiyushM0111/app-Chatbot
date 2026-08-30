@@ -55,6 +55,23 @@ const ChatInputBar = ({
     }
   }, [inputMessage]);
 
+  // Restore saved composer draft on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem('nexus_composer_draft');
+    if (savedDraft && !inputMessage) {
+      setInputMessage(savedDraft);
+    }
+  }, []);
+
+  // Persist composer draft
+  useEffect(() => {
+    if (inputMessage) {
+      localStorage.setItem('nexus_composer_draft', inputMessage);
+    } else {
+      localStorage.removeItem('nexus_composer_draft');
+    }
+  }, [inputMessage]);
+
   // Click outside to close plus menu
   useEffect(() => {
     const handleClickOutside = (e) => {

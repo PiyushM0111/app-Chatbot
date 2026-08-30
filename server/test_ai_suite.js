@@ -121,7 +121,12 @@ const runCompleteAISuite = async () => {
     { input: 'build an attendance management system with SQLite', expected: 'project_builder' },
 
     // Quiz Tutor
-    { input: 'start python quiz', expected: 'learning_quiz' }
+    { input: 'start python quiz', expected: 'learning_quiz' },
+
+    // Live Web Search & Lookups
+    { input: 'search the web for React 19 features', expected: 'web_search' },
+    { input: 'look up latest space telescope discoveries', expected: 'web_search' },
+    { input: '/search quantum supremacy benchmark', expected: 'web_search' }
   ];
 
   for (const testCase of INTENT_DATASET) {
@@ -250,6 +255,47 @@ const runCompleteAISuite = async () => {
     assert(
       calcRes.status === 200 && calcRes.data.aiMessage.content.includes('30'),
       'Calculator: Exact arithmetic evaluation (20% of 150 = 30)'
+    );
+
+    // AI Notes & Snippets Subsystem (Priority 1)
+    const noteCreateRes = await request('/api/notes', 'POST', {
+      title: 'Python Binary Search',
+      content: 'def binary_search(arr, x): low = 0; high = len(arr) - 1',
+      tags: ['Code', 'Algorithms']
+    }, token);
+    assert(
+      noteCreateRes.status === 201 && noteCreateRes.data.note?.title === 'Python Binary Search',
+      'Notes API: Create note and snippet persistently'
+    );
+
+    const noteId = noteCreateRes.data.note?.id;
+    const noteListRes = await request('/api/notes', 'GET', null, token);
+    assert(
+      noteListRes.status === 200 && noteListRes.data.notes.some(n => n.id === noteId),
+      'Notes API: Retrieve user notes with tags'
+    );
+
+    const noteUpdateRes = await request(`/api/notes/${noteId}`, 'PATCH', {
+      title: 'Python Fast Binary Search'
+    }, token);
+    assert(
+      noteUpdateRes.status === 200 && noteUpdateRes.data.note?.title === 'Python Fast Binary Search',
+      'Notes API: Update note title and tags'
+    );
+
+    const noteDeleteRes = await request(`/api/notes/${noteId}`, 'DELETE', null, token);
+    assert(
+      noteDeleteRes.status === 200,
+      'Notes API: Delete note successfully'
+    );
+
+    // Live Web Search & External Lookups (Priority 2)
+    const searchRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'search the web for quantum supremacy benchmark'
+    }, token);
+    assert(
+      searchRes.status === 200 && (searchRes.data.aiMessage.content.includes('Web') || searchRes.data.aiMessage.content.includes('quantum')),
+      'Web Search: Live synthesis and citation returned'
     );
 
   } catch (err) {

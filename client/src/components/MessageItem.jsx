@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Copy, Check, RotateCcw, User, Bot, Volume2, VolumeX, Download, FileText } from 'lucide-react';
+import { Copy, Check, RotateCcw, User, Bot, Volume2, VolumeX, Download, FileText, Bookmark, StickyNote } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 
@@ -16,6 +17,9 @@ const MessageItem = ({
   const [copied, setCopied] = useState(false);
   const [copiedCodeIndex, setCopiedCodeIndex] = useState(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isSavedToNotes, setIsSavedToNotes] = useState(false);
+
+  const { token } = useAuth();
   const { accentColor } = useTheme();
   const { showToast } = useToast();
 
@@ -47,7 +51,7 @@ const MessageItem = ({
   };
 
   const handleDownloadCode = (codeText, lang = 'txt') => {
-    const extMap = { javascript: 'js', python: 'py', html: 'html', css: 'css', json: 'json', markdown: 'md', typescript: 'ts' };
+    const extMap = { javascript: 'js', python: 'py', html: 'html', css: 'css', json: 'json', markdown: 'md', typescript: 'ts', sql: 'sql' };
     const ext = extMap[lang.toLowerCase()] || 'txt';
     const blob = new Blob([codeText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -57,6 +61,34 @@ const MessageItem = ({
     a.click();
     URL.revokeObjectURL(url);
     showToast(`Downloaded as .${ext}`, 'info');
+  };
+
+  const handleSaveToNotes = async (content, title = 'AI Note', tag = 'Ideas') => {
+    if (!token) {
+      showToast('Please log in to save notes.', 'error');
+      return;
+    }
+    try {
+      const res = await fetch('/api/notes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: title.slice(0, 45),
+          content,
+          tags: [tag]
+        })
+      });
+      if (res.ok) {
+        setIsSavedToNotes(true);
+        showToast('Saved to AI Notes!', 'success');
+        setTimeout(() => setIsSavedToNotes(false), 3000);
+      }
+    } catch (e) {
+      showToast('Failed to save note.', 'error');
+    }
   };
 
   const handleSpeakText = () => {
@@ -121,9 +153,9 @@ const MessageItem = ({
             {attachments.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2.5">
                 {attachments.map((att, idx) => (
-                  att.type === 'image' ? (
-                    <div key={idx} className="rounded-xl overflow-hidden max-w-[240px] max-h-[160px] border border-white/20 shadow-md">
-                      <img src={att.data} alt="attachment" className="w-full h-full object-cover" />
+                  att.type === 'image' || att.url ? (
+                    <div key={idx} className="rounded-xl overflow-hidden max-w-[280px] max-h-[200px] border border-white/20 shadow-md">
+                      <img src={att.url || att.data} alt="attachment" className="w-full h-full object-cover" />
                     </div>
                   ) : (
                     <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/20 text-xs text-white">
@@ -192,6 +224,15 @@ const MessageItem = ({
                             <div className="flex items-center gap-1.5">
                               <button
                                 type="button"
+                                onClick={() => handleSaveToNotes(codeString, `${lang.toUpperCase()} Snippet`, 'Code')}
+                                className="flex items-center gap-1 hover:text-white transition-colors px-1.5 py-0.5 rounded hover:bg-zinc-800"
+                                title="Save snippet to AI Notes"
+                              >
+                                <Bookmark className="w-3 h-3 text-amber-400" />
+                                <span className="hidden sm:inline">Note</span>
+                              </button>
+                              <button
+                                type="button"
                                 onClick={() => handleDownloadCode(codeString, lang)}
                                 className="flex items-center gap-1 hover:text-white transition-colors px-1.5 py-0.5 rounded hover:bg-zinc-800"
                                 title="Save snippet to file"
@@ -239,6 +280,16 @@ const MessageItem = ({
 
             {!isUser && (
               <>
+                <button
+                  type="button"
+                  onClick={() => handleSaveToNotes(message.content, 'AI Explanation', 'Learning')}
+                  className="flex items-center gap-1 hover:text-zinc-900 dark:hover:text-white transition-colors p-1 rounded hover:bg-black/5 dark:hover:bg-white/5"
+                  title="Save response to Notes"
+                >
+                  <Bookmark className={`w-3 h-3 ${isSavedToNotes ? 'text-amber-500 fill-amber-500' : ''}`} />
+                  <span>{isSavedToNotes ? 'Saved' : 'Note'}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={handleCopyMessage}

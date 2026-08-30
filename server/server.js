@@ -11,6 +11,7 @@ import memoryRoutes from './routes/memory.js';
 import projectRoutes from './routes/projects.js';
 import learningRoutes from './routes/learning.js';
 import imageRoutes from './routes/images.js';
+import notesRoutes from './routes/notes.js';
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ app.use('/api/memory', memoryRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/images', imageRoutes);
+app.use('/api/notes', notesRoutes);
 
 // Serve static frontend build if available
 const clientDistPath = path.resolve(__dirname, '../client/dist');

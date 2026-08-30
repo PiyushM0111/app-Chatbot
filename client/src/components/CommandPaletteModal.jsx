@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, MessageSquare, FolderGit2, Image, Brain, Sparkles, BookOpen, Settings, Palette, Command, X, ArrowRight } from 'lucide-react';
+import { Search, Plus, MessageSquare, FolderGit2, Image, Brain, Sparkles, BookOpen, Settings, StickyNote, ArrowRight } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const CommandPaletteModal = ({
@@ -10,13 +10,14 @@ const CommandPaletteModal = ({
   onOpenImageGallery,
   onOpenLearning,
   onOpenMemory,
+  onOpenNotes,
   onOpenPromptLibrary,
   onOpenSettings,
   conversations = [],
   onSelectConversation
 }) => {
   const [query, setQuery] = useState('');
-  const { accentColor, setTheme, THEME_PRESETS } = useTheme();
+  const { accentColor } = useTheme();
 
   useEffect(() => {
     if (isOpen) setQuery('');
@@ -26,6 +27,7 @@ const CommandPaletteModal = ({
 
   const ACTIONS = [
     { id: 'new_chat', title: 'Start a Fresh New Chat', category: 'Chat', icon: Plus, action: () => { onNewChat(); onClose(); } },
+    { id: 'notes', title: 'Open AI Notes & Code Snippets', category: 'Notes', icon: StickyNote, action: () => { onOpenNotes(); onClose(); } },
     { id: 'projects', title: 'Open Software Projects Workspace', category: 'Workspace', icon: FolderGit2, action: () => { onOpenProjects(); onClose(); } },
     { id: 'images', title: 'Open AI Image Studio & Gallery', category: 'Studio', icon: Image, action: () => { onOpenImageGallery(); onClose(); } },
     { id: 'learning', title: 'Open Interactive AI Tutor & Quizzes', category: 'Learning', icon: Brain, action: () => { onOpenLearning(); onClose(); } },

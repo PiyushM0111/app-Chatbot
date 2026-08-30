@@ -20,6 +20,7 @@ import MemoryModal from './components/MemoryModal';
 import ProjectsModal from './components/ProjectsModal';
 import ImageGalleryModal from './components/ImageGalleryModal';
 import LearningModal from './components/LearningModal';
+import NotesModal from './components/NotesModal';
 
 function App() {
   const { user, token } = useAuth();
@@ -59,6 +60,7 @@ function App() {
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
   const [isImageGalleryOpen, setIsImageGalleryOpen] = useState(false);
   const [isLearningOpen, setIsLearningOpen] = useState(false);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   const abortControllerRef = useRef(null);
 
@@ -473,6 +475,7 @@ function App() {
         onToggleHistory={() => setIsHistoryOpen((prev) => !prev)}
         onOpenAdvConv={() => setIsAdvConvOpen(true)}
         onOpenLanguage={() => setIsLanguageOpen(true)}
+        onOpenNotes={() => setIsNotesOpen(true)}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
         onOpenProjects={() => setIsProjectsOpen(true)}
         onOpenImageGallery={() => setIsImageGalleryOpen(true)}
@@ -539,6 +542,7 @@ function App() {
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
         onNewChat={handleNewChat}
+        onOpenNotes={() => setIsNotesOpen(true)}
         onOpenProjects={() => setIsProjectsOpen(true)}
         onOpenImageGallery={() => setIsImageGalleryOpen(true)}
         onOpenLearning={() => setIsLearningOpen(true)}
@@ -547,6 +551,12 @@ function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         conversations={conversations}
         onSelectConversation={(id) => loadConversation(id)}
+      />
+
+      <NotesModal
+        isOpen={isNotesOpen}
+        onClose={() => setIsNotesOpen(false)}
+        onInsertNoteToChat={(text) => handleSendMessage(text)}
       />
 
       <MemoryModal

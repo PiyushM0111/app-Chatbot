@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Plus, History, Sparkles, Globe, Settings, Palette } from 'lucide-react';
+import { User, Plus, History, Sparkles, Globe, Palette, StickyNote } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -10,6 +10,7 @@ const HeaderControls = ({
   onToggleHistory,
   onOpenAdvConv,
   onOpenLanguage,
+  onOpenNotes,
   currentLanguage = 'en',
   currentMode = 'general'
 }) => {
@@ -28,7 +29,7 @@ const HeaderControls = ({
 
   return (
     <header className="w-full px-3 py-2 sm:px-6 sm:py-2.5 flex justify-between items-center z-30 pointer-events-auto">
-      {/* TOP LEFT: AI Brand Identity + New Chat + History */}
+      {/* TOP LEFT: AI Brand Identity + New Chat + History + Notes */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* AI Brand Mark */}
         <div className="flex items-center gap-2.5 group cursor-pointer" onClick={onNewChat}>
@@ -69,6 +70,15 @@ const HeaderControls = ({
           className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-all active:scale-95 shadow-sm border border-zinc-200/60 dark:border-zinc-700/60"
         >
           <History className="w-4 h-4 stroke-[2.2]" />
+        </button>
+
+        {/* AI Notes Button */}
+        <button
+          onClick={onOpenNotes}
+          title="Saved Notes & Snippets"
+          className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-all active:scale-95 shadow-sm border border-zinc-200/60 dark:border-zinc-700/60"
+        >
+          <StickyNote className="w-4 h-4 stroke-[2.2]" />
         </button>
       </div>
 

@@ -175,6 +175,7 @@ export const initDB = async () => {
     await run(`CREATE INDEX IF NOT EXISTS idx_projects_user ON projects(user_id)`);
     await run(`CREATE INDEX IF NOT EXISTS idx_learning_user ON learning_progress(user_id)`);
     await run(`CREATE INDEX IF NOT EXISTS idx_images_user ON generated_images(user_id)`);
+    await run(`CREATE INDEX IF NOT EXISTS idx_notes_user ON notes(user_id)`);
 
     console.log('Database tables & indexes initialized successfully.');
   } catch (error) {
