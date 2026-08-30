@@ -245,6 +245,73 @@ const runCompleteAISuite = async () => {
       'Smart Depth: "Explain cybersecurity from beginner to advanced" → Complete structured roadmap'
     );
 
+    // 9. Simple Depth: What is Python?
+    const pySimpleRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'What is Python in one line?'
+    }, token);
+    assert(
+      pySimpleRes.status === 200 &&
+      pySimpleRes.data.aiMessage.content.includes('Python') &&
+      pySimpleRes.data.aiMessage.content.length < 300,
+      'Smart Depth: "What is Python in one line?" → Concise definition (< 300 chars)'
+    );
+
+    // 10. Normal/Detailed Depth: Explain Python functions
+    const pyFuncNormRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Explain Python functions.'
+    }, token);
+    assert(
+      pyFuncNormRes.status === 200 &&
+      pyFuncNormRes.data.aiMessage.content.includes('def ') &&
+      pyFuncNormRes.data.aiMessage.content.includes('Return Values'),
+      'Smart Depth: "Explain Python functions." → Standard structured guide with examples'
+    );
+
+    // 11. Multi-File Project: Write a long HTML/CSS/JS project
+    const webProjRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Write a long HTML/CSS/JS project.'
+    }, token);
+    assert(
+      webProjRes.status === 200 &&
+      webProjRes.data.aiMessage.content.includes('index.html') &&
+      webProjRes.data.aiMessage.content.includes('style.css') &&
+      webProjRes.data.aiMessage.content.includes('app.js'),
+      'Smart Completeness: "Write a long HTML/CSS/JS project." → Complete multi-file web app'
+    );
+
+    // 12. Line-by-Line Breakdown: Explain this code line by line
+    const lineByLineRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Explain this code line by line.'
+    }, token);
+    assert(
+      lineByLineRes.status === 200 &&
+      lineByLineRes.data.aiMessage.content.includes('Line 1') &&
+      lineByLineRes.data.aiMessage.content.includes('Complexity'),
+      'Smart Completeness: "Explain this code line by line." → Mechanical execution walkthrough'
+    );
+
+    // 13. Master Engineering Roadmap: Give me a complete learning roadmap
+    const roadmapRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Give me a complete learning roadmap.'
+    }, token);
+    assert(
+      roadmapRes.status === 200 &&
+      roadmapRes.data.aiMessage.content.includes('Phase 1') &&
+      roadmapRes.data.aiMessage.content.includes('Phase 4'),
+      'Smart Completeness: "Give me a complete learning roadmap." → 4-Phase engineering roadmap'
+    );
+
+    // 14. Project Documentation: Write a detailed project documentation
+    const docRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Write a detailed project documentation.'
+    }, token);
+    assert(
+      docRes.status === 200 &&
+      docRes.data.aiMessage.content.includes('Architectural Blueprint') &&
+      docRes.data.aiMessage.content.includes('API Endpoints Contract'),
+      'Smart Completeness: "Write a detailed project documentation." → Production technical spec'
+    );
+
     // =========================================================================
     // SECTION 3: MULTI-TURN IMAGE CONTINUITY
     // =========================================================================

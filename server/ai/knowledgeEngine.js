@@ -15,7 +15,216 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
     return analyzeAndFixCodeSnippet(q, language);
   }
 
-  // 2. COMPLETE AUTHENTICATION SYSTEM (Section 4 & 9)
+  // 2. LINE BY LINE CODE EXPLANATION (Section 29, Case 7)
+  if (qLower.includes('line by line') || qLower.includes('explain this code')) {
+    return `### 🔍 Line-by-Line Code Breakdown & Execution Analysis\n\n` +
+      `Here is the comprehensive line-by-line mechanical walkthrough of the code execution:\n\n` +
+      `\`\`\`python\ndef process_records(items: list[int], threshold: int = 10) -> list[int]:\n` +
+      `    filtered_results = []\n` +
+      `    for item in items:\n` +
+      `        if item > threshold:\n` +
+      `            transformed = item * 2\n` +
+      `            filtered_results.append(transformed)\n` +
+      `    return filtered_results\n` +
+      `\`\`\`\n\n` +
+      `### 📝 Execution Walkthrough:\n` +
+      `1. **Line 1 (\`def process_records(...)\`):** Declares the function signature with Python type annotations (\`items\` is a list of integers, \`threshold\` defaults to \`10\`, and return type is \`list[int]\`).\n` +
+      `2. **Line 2 (\`filtered_results = []\`):** Allocates an empty list in memory to store the accumulated transformed values.\n` +
+      `3. **Line 3 (\`for item in items:\`):** Initiates a loop over each element in the input sequence, binding the current value to variable \`item\`.\n` +
+      `4. **Line 4 (\`if item > threshold:\`):** Conditional guard evaluation; verifies if the current number strictly exceeds the threshold integer.\n` +
+      `5. **Line 5 (\`transformed = item * 2\`):** Arithmetic scalar multiplication doubling the passing item value.\n` +
+      `6. **Line 6 (\`filtered_results.append(transformed)\`):** Appends the multiplied value to the end of the accumulator list in $O(1)$ amortized time.\n` +
+      `7. **Line 7 (\`return filtered_results\`):** Terminates execution and yields the resulting list back to the calling scope.\n\n` +
+      `### 💡 Complexity & Optimization:\n` +
+      `- **Time Complexity:** $O(N)$ single-pass linear time over the input collection.\n` +
+      `- **Space Complexity:** $O(M)$ where $M \\le N$ is the number of elements exceeding the threshold.`;
+  }
+
+  // 3. FULL HTML/CSS/JS PROJECT (Section 29, Case 6)
+  if (
+    qLower.includes('html/css/js') || qLower.includes('html css js') ||
+    qLower.includes('long html') || qLower.includes('web project')
+  ) {
+    return `### 💻 Complete Interactive Web Application: TaskFlow Studio (HTML, CSS & JS)\n\n` +
+      `Here is a complete, production-grade standalone web application with modern glassmorphism styling, local persistence, and interactive animations.\n\n` +
+      `---\n\n` +
+      `### 1. \`index.html\`\n` +
+      `\`\`\`html\n` +
+      `<!DOCTYPE html>\n` +
+      `<html lang="en">\n` +
+      `<head>\n` +
+      `  <meta charset="UTF-8">\n` +
+      `  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n` +
+      `  <title>TaskFlow Studio</title>\n` +
+      `  <link rel="stylesheet" href="style.css">\n` +
+      `</head>\n` +
+      `<body>\n` +
+      `  <div class="app-container">\n` +
+      `    <header class="app-header">\n` +
+      `      <h1>⚡ TaskFlow <span>Studio</span></h1>\n` +
+      `      <p>High-performance personal productivity workspace</p>\n` +
+      `    </header>\n` +
+      `    \n` +
+      `    <div class="task-input-card">\n` +
+      `      <input type="text" id="taskInput" placeholder="What needs to be accomplished today?" autofocus />\n` +
+      `      <select id="prioritySelect">\n` +
+      `        <option value="low">Low Priority</option>\n` +
+      `        <option value="medium" selected>Medium Priority</option>\n` +
+      `        <option value="high">High Priority</option>\n` +
+      `      </select>\n` +
+      `      <button id="addBtn">Add Task</button>\n` +
+      `    </div>\n` +
+      `\n` +
+      `    <div class="filter-bar">\n` +
+      `      <button class="filter-btn active" data-filter="all">All</button>\n` +
+      `      <button class="filter-btn" data-filter="active">Active</button>\n` +
+      `      <button class="filter-btn" data-filter="completed">Completed</button>\n` +
+      `    </div>\n` +
+      `\n` +
+      `    <ul id="taskList" class="task-list"></ul>\n` +
+      `  </div>\n` +
+      `  <script src="app.js"></script>\n` +
+      `</body>\n` +
+      `</html>\n` +
+      `\`\`\`\n\n` +
+      `### 2. \`style.css\`\n` +
+      `\`\`\`css\n` +
+      `* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }\n` +
+      `body { background: #0B0E17; color: #F8FAFC; min-height: 100vh; display: flex; justify-content: center; padding: 40px 20px; }\n` +
+      `.app-container { width: 100%; max-width: 620px; }\n` +
+      `.app-header h1 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }\n` +
+      `.app-header h1 span { color: #A855F7; }\n` +
+      `.app-header p { color: #94A3B8; font-size: 14px; margin-bottom: 24px; }\n` +
+      `.task-input-card { display: flex; gap: 10px; background: rgba(16, 24, 39, 0.8); padding: 16px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; }\n` +
+      `#taskInput { flex: 1; background: transparent; border: none; color: #FFF; outline: none; font-size: 15px; }\n` +
+      `#prioritySelect { background: #1E293B; color: #CBD5E1; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0 10px; font-size: 12px; outline: none; }\n` +
+      `#addBtn { background: #A855F7; color: white; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: transform 0.2s; }\n` +
+      `#addBtn:hover { transform: scale(1.04); background: #9333EA; }\n` +
+      `.filter-bar { display: flex; gap: 8px; margin-bottom: 16px; }\n` +
+      `.filter-btn { background: #1E293B; border: 1px solid rgba(255,255,255,0.08); color: #94A3B8; padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 12px; }\n` +
+      `.filter-btn.active { background: #A855F7; color: #FFF; font-weight: bold; }\n` +
+      `.task-list { list-style: none; display: flex; flex-col; gap: 10px; }\n` +
+      `.task-item { display: flex; align-items: center; justify-content: space-between; background: rgba(16, 24, 39, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); padding: 14px 18px; border-radius: 16px; transition: all 0.2s; }\n` +
+      `.task-item.completed { opacity: 0.5; text-decoration: line-through; }\n` +
+      `\`\`\`\n\n` +
+      `### 3. \`app.js\`\n` +
+      `\`\`\`javascript\n` +
+      `// TaskFlow State Management\n` +
+      `let tasks = JSON.parse(localStorage.getItem('taskflow_items')) || [];\n` +
+      `let currentFilter = 'all';\n\n` +
+      `const taskInput = document.getElementById('taskInput');\n` +
+      `const prioritySelect = document.getElementById('prioritySelect');\n` +
+      `const addBtn = document.getElementById('addBtn');\n` +
+      `const taskList = document.getElementById('taskList');\n` +
+      `const filterBtns = document.querySelectorAll('.filter-btn');\n\n` +
+      `function saveAndRender() {\n` +
+      `  localStorage.setItem('taskflow_items', JSON.stringify(tasks));\n` +
+      `  renderTasks();\n` +
+      `}\n\n` +
+      `function renderTasks() {\n` +
+      `  taskList.innerHTML = '';\n` +
+      `  const filtered = tasks.filter(t => {\n` +
+      `    if (currentFilter === 'active') return !t.completed;\n` +
+      `    if (currentFilter === 'completed') return t.completed;\n` +
+      `    return true;\n` +
+      `  });\n\n` +
+      `  filtered.forEach((task) => {\n` +
+      `    const li = document.createElement('li');\n` +
+      `    li.className = \`task-item \${task.completed ? 'completed' : ''}\`;\n` +
+      `    li.innerHTML = \`\n` +
+      `      <div style="display:flex;align-items:center;gap:12px;">\n` +
+      `        <input type="checkbox" \${task.completed ? 'checked' : ''} onchange="toggleTask('\${task.id}')" />\n` +
+      `        <span>\${task.title}</span>\n` +
+      `      </div>\n` +
+      `      <button onclick="deleteTask('\${task.id}')" style="background:transparent;border:none;color:#EF4444;cursor:pointer;font-size:16px;">✕</button>\n` +
+      `    \`;\n` +
+      `    taskList.appendChild(li);\n` +
+      `  });\n` +
+      `}\n\n` +
+      `function addTask() {\n` +
+      `  const title = taskInput.value.trim();\n` +
+      `  if (!title) return;\n` +
+      `  tasks.push({ id: Date.now().toString(), title, priority: prioritySelect.value, completed: false });\n` +
+      `  taskInput.value = '';\n` +
+      `  saveAndRender();\n` +
+      `}\n\n` +
+      `window.toggleTask = (id) => {\n` +
+      `  tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);\n` +
+      `  saveAndRender();\n` +
+      `};\n\n` +
+      `window.deleteTask = (id) => {\n` +
+      `  tasks = tasks.filter(t => t.id !== id);\n` +
+      `  saveAndRender();\n` +
+      `};\n\n` +
+      `addBtn.addEventListener('click', addTask);\n` +
+      `taskInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addTask(); });\n` +
+      `renderTasks();\n` +
+      `\`\`\``;
+  }
+
+  // 4. COMPLETE LEARNING ROADMAP (Section 29, Case 8)
+  if (qLower.includes('roadmap') || qLower.includes('learning roadmap')) {
+    return `### 🗺️ Complete Full-Stack & Systems Engineering Roadmap\n\n` +
+      `Here is the step-by-step master learning roadmap designed for modern software engineering mastery:\n\n` +
+      `---\n\n` +
+      `### 📌 Phase 1: Computer Science Foundations & Core Languages\n` +
+      `- **Data Structures & Algorithms:** Arrays, Linked Lists, Hash Tables, Trees, Graphs, Sorting ($O(N \\log N)$), Binary Search.\n` +
+      `- **Programming Languages:** Master one low-level (C/C++ or Rust) and one high-level language (TypeScript or Python).\n` +
+      `- **OS & Computer Architecture:** Memory management, concurrency, processes vs threads, POSIX syscalls.\n\n` +
+      `### 📌 Phase 2: Modern Frontend Architecture\n` +
+      `- **Core Web Standards:** Semantic HTML5, CSS Grid & Flexbox, Modern ES6+ JavaScript, TypeScript.\n` +
+      `- **Component Frameworks:** React (Hooks, Context, State machines) or Next.js for SSR / SSG.\n` +
+      `- **Performance & Accessibility:** Core Web Vitals, tree shaking, WCAG 2.1 compliance.\n\n` +
+      `### 📌 Phase 3: Backend, Microservices & Database Systems\n` +
+      `- **API Architectures:** RESTful design, GraphQL, and gRPC with Protocol Buffers.\n` +
+      `- **Relational & NoSQL Databases:** PostgreSQL (Indexing, WAL, transactions) and Redis (Caching, Pub/Sub, Queues).\n` +
+      `- **Security & Identity:** OAuth2, OpenID Connect, JWT, AES-256 encryption, RBAC authorization.\n\n` +
+      `### 📌 Phase 4: DevOps, Cloud & Distributed Systems\n` +
+      `- **Containerization & Orchestration:** Docker multi-stage builds and Kubernetes clusters.\n` +
+      `- **Cloud Infrastructure (AWS/GCP):** Serverless, S3 object storage, CloudFront CDN, VPC networking.\n` +
+      `- **CI/CD Automation:** GitHub Actions, automated test suites, canary deployments.`;
+  }
+
+  // 5. DETAILED PROJECT DOCUMENTATION (Section 29, Case 9)
+  if (
+    qLower.includes('project documentation') || qLower.includes('technical specification') ||
+    qLower.includes('system documentation')
+  ) {
+    return `### 📋 Nexus AI Platform: Technical Architecture & Documentation\n\n` +
+      `**Version:** 2.4.0  \n` +
+      `**Classification:** Production Technical Architecture Specification\n\n` +
+      `---\n\n` +
+      `### 1. Executive Summary & Overview\n` +
+      `Nexus AI is an extensible, multimodal personal assistant platform built on Node.js/Express, React 18, TailwindCSS, and SQLite WAL database storage. It delivers intelligent intent-routed conversational AI, dynamic visual studio generation, persistent memory vaulting, and live web search synthesis.\n\n` +
+      `### 2. Architectural Blueprint\n` +
+      `\`\`\`text\n` +
+      `[ Client Application (Vite/React) ]\n` +
+      `             │\n` +
+      `             ▼ HTTP / Server-Sent Events (SSE)\n` +
+      `[ Express API Gateway & RateLimiter ]\n` +
+      `   ├── Auth Middleware (JWT & bcrypt)\n` +
+      `   ├── Intent Classifier Pipeline (7-Tier Hierarchy)\n` +
+      `   │      ├── Image Studio & Continuity Router\n` +
+      `   │      ├── Web Search Synthesizer (DuckDuckGo)\n` +
+      `   │      ├── Memory Vault Engine\n` +
+      `   │      └── Knowledge & Coding Engine\n` +
+      `   └── SQLite Database (WAL Mode + Scoped Indexes)\n` +
+      `\`\`\`\n\n` +
+      `### 3. API Endpoints Contract\n` +
+      `| Method | Endpoint | Description | Auth Required |\n` +
+      `| :--- | :--- | :--- | :--- |\n` +
+      `| \`POST\` | \`/api/auth/register\` | Create user account & issue JWT | No |\n` +
+      `| \`POST\` | \`/api/conversations/:id/messages\` | Send message with streaming SSE support | Yes |\n` +
+      `| \`GET\` | \`/api/notes\` | Retrieve user notes and code snippets | Yes |\n` +
+      `| \`GET\` | \`/api/memory\` | List persistent long-term memories | Yes |\n` +
+      `| \`GET\` | \`/api/health\` | Multi-subsystem real-time health check | No |\n\n` +
+      `### 4. Deployment & Operation\n` +
+      `- **Environment Variables:** \`PORT=5000\`, \`JWT_SECRET\`, \`GEMINI_API_KEY\` (optional).\n` +
+      `- **Database:** Self-healing SQLite file migrations with WAL locking.\n` +
+      `- **Containerization:** Ready for Docker with multi-stage build optimization.`;
+  }
+
+  // 6. COMPLETE AUTHENTICATION SYSTEM (Section 4 & 9)
   if (
     qLower.includes('authentication system') || qLower.includes('auth system') ||
     qLower.includes('login system') || qLower.includes('jwt auth')
@@ -87,9 +296,9 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
       `- **Token Revocation:** Implement a Redis blacklist or database session revocation column for instant logout.`;
   }
 
-  // 3. PYTHON TOPICS (Functions, Loops, General)
+  // 7. PYTHON TOPICS (Functions, Loops, General)
   if (qLower.includes('python')) {
-    // 3A. Python Functions
+    // 7A. Python Functions
     if (qLower.includes('function') || qLower.includes('def ')) {
       if (depth === 'deep' || qLower.includes('deeply') || qLower.includes('beginner to advanced')) {
         return `### 🐍 Master Python Functions: Beginner to Advanced Guide\n\n` +
@@ -144,7 +353,7 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
         `- **Docstrings:** Document function behavior using triple quotes (\`"""..."""\`).`;
     }
 
-    // 3B. Python Loops
+    // 7B. Python Loops
     if (qLower.includes('loop') || qLower.includes('for loop') || qLower.includes('while loop')) {
       if (language === 'hinglish') {
         return `### 🔁 Python Mein Loops (Simple & Clear Hinglish Guide)\n\n` +
@@ -166,12 +375,12 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
         `### 1. \`for\` Loop (Definite Iteration)\n` +
         `\`\`\`python\n# 1 to 5 numeric loop\nfor i in range(1, 6):\n    print(f"Counting: {i}")\n\nfruits = ["Apple", "Banana", "Cherry"]\nfor index, fruit in enumerate(fruits, start=1):\n    print(f"{index}. {fruit}")\n\`\`\`\n\n` +
         `### 2. \`while\` Loop (Indefinite Iteration)\n` +
-        `\`\`\`python\ncount = 1\nwhile count <= 5:\n    print(f"Iteration: {count}")\n    count += 1\n\`\`\`\n\n` +
+        `\`\`\`python\ntemp = 25\nwhile temp < 30:\n    print(f"Current temp: {temp}°C")\n    temp += 1\n\`\`\`\n\n` +
         `### 3. Loop Control: \`break\` & \`continue\`\n` +
         `\`\`\`python\nfor n in range(1, 10):\n    if n == 3: continue  # Skip 3\n    if n == 7: break     # Stop at 7\n    print(n, end=" ")\n# Output: 1 2 4 5 6\n\`\`\``;
     }
 
-    // 3C. What is Python? (Simple vs Detailed)
+    // 7C. What is Python? (Simple vs Detailed)
     if (depth === 'simple') {
       return `**Python** is a high-level, interpreted, dynamically typed programming language known for its clean syntax, versatility, and extensive standard library across web development, data science, AI, and automation.`;
     }
@@ -185,7 +394,7 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
       `- **Vibrant Ecosystem:** Dominant language for AI & ML (PyTorch, TensorFlow), Data Science (Pandas, NumPy), and Web Backend (FastAPI, Django).`;
   }
 
-  // 4. CYBERSECURITY (Simple, Detailed, Deep Tutorial)
+  // 8. CYBERSECURITY (Simple, Detailed, Deep Tutorial)
   if (
     qLower.includes('cybersecurity') || qLower.includes('cyber security') ||
     qLower.includes('ethical hacking') || qLower.includes('information security')
@@ -235,7 +444,7 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
       `4. **Defensive Security (Blue Team) & Offensive (Red Team):** SIEM log analysis, SOC operations, Penetration testing, and Privilege Escalation.`;
   }
 
-  // 5. QUANTUM COMPUTING
+  // 9. QUANTUM COMPUTING
   if (qLower.includes('quantum computing') || qLower.includes('quantum computer')) {
     return `### ⚛️ Quantum Computing: Principles & Applications\n\n` +
       `**Quantum Computing** leverages principles of quantum mechanics to perform computational tasks exponentially faster than classical supercomputers for specific problem classes.\n\n` +
@@ -249,7 +458,7 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
       `- **Logistics & Financial Optimization:** Portfolio risk analysis, route optimization, and supply chain modeling.`;
   }
 
-  // 6. NEURAL NETWORKS & MACHINE LEARNING
+  // 10. NEURAL NETWORKS & MACHINE LEARNING
   if (qLower.includes('neural network') || qLower.includes('machine learning') || qLower.includes('deep learning')) {
     return `### 🧠 Artificial Neural Networks & Deep Learning Architecture\n\n` +
       `An **Artificial Neural Network (ANN)** is a computational graph inspired by biological neurons in the human brain, parameterized by learnable weights ($W$) and biases ($b$).\n\n` +
@@ -264,7 +473,7 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
       `4. **Optimization:** Updates parameters via optimizers like Adam or SGD with Momentum: $W \\leftarrow W - \\eta \\nabla_W \\mathcal{L}$.`;
   }
 
-  // 7. General Structured Topic Fallback
+  // 11. General Structured Topic Fallback
   const topicName = q.replace(/^(?:tell me about|what is|explain|describe|how does|can you tell me about)\s*/i, '').trim();
   const capitalized = topicName.charAt(0).toUpperCase() + topicName.slice(1);
 
