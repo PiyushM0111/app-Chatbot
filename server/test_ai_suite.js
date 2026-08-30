@@ -171,8 +171,8 @@ const runCompleteAISuite = async () => {
                            !bugAiMsg.content.includes('The core approach involves');
 
     assert(
-      bugTestRes.status === 200 && (bugHasImage || bugAiMsg.content.includes('Generated Image')) && bugHasNoFiller,
-      'CRITICAL FIX: "generate a image in which a boy is learning hacking" routes to Image Studio with image output (no text boilerplate)',
+      bugTestRes.status === 200 && bugHasImage && bugHasNoFiller && !bugAiMsg.content.includes('Visual Parameters:'),
+      'CRITICAL FIX: "generate a image in which a boy is learning hacking" routes to Image Studio with image output (clean UI, no metadata dump)',
       `Response contained generic text instead of image: ${bugAiMsg.content.slice(0, 100)}`
     );
 
@@ -182,7 +182,7 @@ const runCompleteAISuite = async () => {
     }, token);
     const imgCyberMsg = imgCyberRes.data.aiMessage;
     assert(
-      imgCyberRes.status === 200 && (imgCyberMsg.content.includes('Generated Image') || imgCyberMsg.attachments?.length > 0),
+      imgCyberRes.status === 200 && imgCyberMsg.attachments?.length > 0 && !imgCyberMsg.content.includes('Visual Parameters:'),
       'Topic Collision A: "Generate an image of a boy learning cybersecurity" → Image Generation (NOT text explanation)'
     );
 

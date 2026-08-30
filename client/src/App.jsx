@@ -21,6 +21,7 @@ import ProjectsModal from './components/ProjectsModal';
 import ImageGalleryModal from './components/ImageGalleryModal';
 import LearningModal from './components/LearningModal';
 import NotesModal from './components/NotesModal';
+import ImageLightboxModal from './components/ImageLightboxModal';
 
 function App() {
   const { user, token } = useAuth();
@@ -61,6 +62,7 @@ function App() {
   const [isImageGalleryOpen, setIsImageGalleryOpen] = useState(false);
   const [isLearningOpen, setIsLearningOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [lightboxData, setLightboxData] = useState({ isOpen: false, url: '', alt: '' });
 
   const abortControllerRef = useRef(null);
 
@@ -503,6 +505,9 @@ function App() {
           onSelectPrompt={(p) => handleSendMessage(p)}
           onOpenPrompts={() => setIsPromptLibraryOpen(true)}
           onRegenerate={handleRegenerate}
+          onOpenLightbox={(url, alt) => setLightboxData({ isOpen: true, url, alt })}
+          onEditImage={(subj) => setInputMessage(`Modify this image of ${subj}: make it `)}
+          onRegenerateImage={(subj) => handleSendMessage(`Create another variation of ${subj}`)}
         />
       </div>
 
@@ -632,6 +637,13 @@ function App() {
       <ShortcutsModal
         isOpen={isShortcutsOpen}
         onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      <ImageLightboxModal
+        isOpen={lightboxData.isOpen}
+        onClose={() => setLightboxData({ isOpen: false, url: '', alt: '' })}
+        imageUrl={lightboxData.url}
+        altText={lightboxData.alt}
       />
     </div>
   );

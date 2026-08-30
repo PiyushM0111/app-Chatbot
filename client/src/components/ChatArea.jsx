@@ -12,7 +12,10 @@ const ChatArea = ({
   onRegenerate,
   onSelectPrompt,
   onOpenPrompts,
-  isRegenerating
+  isRegenerating,
+  onOpenLightbox,
+  onEditImage,
+  onRegenerateImage
 }) => {
   const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
@@ -68,6 +71,9 @@ const ChatArea = ({
                     isLastAiMessage={isLastAi}
                     onRegenerate={onRegenerate}
                     isRegenerating={isRegenerating}
+                    onOpenLightbox={onOpenLightbox}
+                    onEditImage={onEditImage}
+                    onRegenerateImage={onRegenerateImage}
                   />
                 );
               })}

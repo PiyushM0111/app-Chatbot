@@ -86,12 +86,7 @@ export const interpretImageRequest = (prompt, previousImageParams = null) => {
     structuredPrompt,
     parameters,
     imageUrl,
-    formattedResponse: `### 🎨 Generated Image: "${subject}"\n\n` +
-      `![${subject}](${imageUrl})\n\n` +
-      `**Visual Parameters:**\n` +
-      `- **Style:** ${style}\n` +
-      `- **Lighting:** ${lighting}\n` +
-      `- **Aspect Ratio:** ${aspectRatio}\n\n` +
-      `*You can ask to modify the background, change lighting, or create variations anytime!*`
+    // Clean, minimal message content without verbose metadata dump
+    formattedResponse: `Here is your generated image: **${subject}**`
   };
 };

@@ -47,7 +47,12 @@ export const routeAndExecuteTool = async (intentData, userId, conversationId, us
       imageAttachment: {
         type: 'image',
         url: imgData.imageUrl,
+        alt: `Generated image of ${imgData.subject}`,
         subject: imgData.subject,
+        prompt: imgData.prompt,
+        aspectRatio: imgData.parameters?.aspectRatio || '1:1',
+        style: imgData.parameters?.style,
+        lighting: imgData.parameters?.lighting,
         parameters: imgData.parameters
       }
     };
