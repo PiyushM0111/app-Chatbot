@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment Variables & Secrets
+.env
+server/.env
+client/.env
+*.env.local
+
+# SQLite Database & Storage
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+server/chatbot.db
+
+# Build Artifacts
+dist/
+client/dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Editor & OS Metadata
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
