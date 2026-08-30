@@ -298,6 +298,23 @@ const runCompleteAISuite = async () => {
       'Web Search: Live synthesis and citation returned'
     );
 
+    // Multi-Format Export Verification (Section 29)
+    const exportJsonRes = await request(`/api/conversations/${convId}/export?format=json`, 'GET', null, token);
+    assert(exportJsonRes.status === 200 && exportJsonRes.data.messages, 'Export: JSON format export generated');
+
+    const exportTxtRes = await request(`/api/conversations/${convId}/export?format=txt`, 'GET', null, token);
+    assert(exportTxtRes.status === 200, 'Export: TXT plain format export generated');
+
+    const exportMdRes = await request(`/api/conversations/${convId}/export?format=markdown`, 'GET', null, token);
+    assert(exportMdRes.status === 200, 'Export: Markdown format export generated');
+
+    // Subsystems Health Status Check (Section 51 & 59)
+    const healthRes = await request('/api/health', 'GET', null, null);
+    assert(
+      healthRes.status === 200 && healthRes.data.subsystems && healthRes.data.subsystems.database.includes('Operational'),
+      'Health Monitoring: Multi-subsystem health status operational'
+    );
+
   } catch (err) {
     console.error('Fatal execution error during test run:', err);
     failed++;
