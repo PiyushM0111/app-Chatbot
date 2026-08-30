@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, MessageSquare, FolderGit2, Image, Brain, Sparkles, BookOpen, Settings, StickyNote, ArrowRight } from 'lucide-react';
+import { Search, Plus, MessageSquare, FolderGit2, Image, Brain, Sparkles, BookOpen, Settings, StickyNote, Palette, ArrowRight } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const CommandPaletteModal = ({
@@ -11,6 +11,7 @@ const CommandPaletteModal = ({
   onOpenLearning,
   onOpenMemory,
   onOpenNotes,
+  onOpenThemeStudio,
   onOpenPromptLibrary,
   onOpenSettings,
   conversations = [],
@@ -27,6 +28,7 @@ const CommandPaletteModal = ({
 
   const ACTIONS = [
     { id: 'new_chat', title: 'Start a Fresh New Chat', category: 'Chat', icon: Plus, action: () => { onNewChat(); onClose(); } },
+    { id: 'theme_studio', title: 'Open Theme Studio & Visual Atmospheres', category: 'Design', icon: Palette, action: () => { onOpenThemeStudio && onOpenThemeStudio(); onClose(); } },
     { id: 'notes', title: 'Open AI Notes & Code Snippets', category: 'Notes', icon: StickyNote, action: () => { onOpenNotes(); onClose(); } },
     { id: 'projects', title: 'Open Software Projects Workspace', category: 'Workspace', icon: FolderGit2, action: () => { onOpenProjects(); onClose(); } },
     { id: 'images', title: 'Open AI Image Studio & Gallery', category: 'Studio', icon: Image, action: () => { onOpenImageGallery(); onClose(); } },
@@ -59,53 +61,54 @@ const CommandPaletteModal = ({
             onChange={(e) => setQuery(e.target.value)}
             className="flex-1 bg-transparent text-sm sm:text-base text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none"
           />
-          <kbd className="hidden sm:inline-block px-2 py-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 border border-zinc-200 dark:border-zinc-700">
-            ESC to close
+          <kbd className="hidden sm:inline px-2 py-0.5 text-[10px] font-mono bg-zinc-100 dark:bg-zinc-800 text-zinc-500 rounded-md border border-zinc-300 dark:border-zinc-700">
+            ESC
           </kbd>
         </div>
 
-        {/* Results List */}
-        <div className="flex-1 overflow-y-auto p-2 sm:p-3 space-y-3 custom-chat-scroller">
-          {/* Quick Actions Group */}
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 mb-1.5">
-              Quick Commands & Workspaces
-            </div>
-            <div className="space-y-1">
-              {filteredActions.map((act) => {
-                const Icon = act.icon;
-                return (
-                  <button
-                    key={act.id}
-                    onClick={act.action}
-                    className="w-full px-3 py-2.5 rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all flex items-center justify-between group text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="p-2 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
-                        style={{ backgroundColor: `${accentColor}22`, color: accentColor }}
-                      >
-                        <Icon className="w-4 h-4" />
+        {/* Results Body */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-4">
+          {/* Quick Actions */}
+          {filteredActions.length > 0 && (
+            <div>
+              <div className="px-2 pb-1.5 text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                Workspaces & Controls
+              </div>
+              <div className="space-y-1">
+                {filteredActions.map((act) => {
+                  const Icon = act.icon;
+                  return (
+                    <button
+                      key={act.id}
+                      onClick={act.action}
+                      className="w-full px-3 py-2.5 rounded-2xl hover:bg-purple-50 dark:hover:bg-purple-950/40 flex items-center justify-between text-left transition-colors group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-200 block group-hover:text-purple-700 dark:group-hover:text-purple-300">
+                            {act.title}
+                          </span>
+                          <span className="text-[10px] text-zinc-400 font-medium">
+                            {act.category}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 block">
-                          {act.title}
-                        </span>
-                        <span className="text-[10px] text-zinc-400">{act.category}</span>
-                      </div>
-                    </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
-                );
-              })}
+                      <ArrowRight className="w-3.5 h-3.5 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Conversations Group */}
+          {/* Conversations */}
           {filteredConvs.length > 0 && (
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 mb-1.5">
-                Matching Chats
+              <div className="px-2 pb-1.5 text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                Recent Conversations
               </div>
               <div className="space-y-1">
                 {filteredConvs.map((conv) => (
@@ -115,20 +118,28 @@ const CommandPaletteModal = ({
                       onSelectConversation(conv.id);
                       onClose();
                     }}
-                    className="w-full px-3 py-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-all flex items-center justify-between group text-left"
+                    className="w-full px-3 py-2.5 rounded-2xl hover:bg-zinc-100 dark:hover:bg-zinc-800/80 flex items-center justify-between text-left transition-colors group"
                   >
-                    <div className="flex items-center gap-2.5 truncate">
-                      <MessageSquare className="w-3.5 h-3.5 text-zinc-400 flex-shrink-0" />
-                      <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300 truncate">
+                    <div className="flex items-center gap-3 truncate">
+                      <div className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">
                         {conv.title}
                       </span>
                     </div>
-                    <span className="text-[10px] text-zinc-400 flex-shrink-0">
-                      {new Date(conv.updated_at || conv.created_at).toLocaleDateString()}
+                    <span className="text-[10px] text-zinc-400 capitalize">
+                      {conv.mode || 'Chat'}
                     </span>
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {filteredActions.length === 0 && filteredConvs.length === 0 && (
+            <div className="py-8 text-center text-xs text-zinc-400">
+              No matching commands or conversations found for "{query}".
             </div>
           )}
         </div>

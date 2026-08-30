@@ -1,11 +1,12 @@
 import React from 'react';
-import { User, Plus, History, Sparkles, Globe, Palette, StickyNote } from 'lucide-react';
+import { User, Plus, History, Sparkles, Globe, Palette, StickyNote, Sliders } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 const HeaderControls = ({
   onOpenAuth,
   onOpenSettings,
+  onOpenThemeStudio,
   onNewChat,
   onToggleHistory,
   onOpenAdvConv,
@@ -15,7 +16,7 @@ const HeaderControls = ({
   currentMode = 'general'
 }) => {
   const { user } = useAuth();
-  const { accentColor } = useTheme();
+  const { accentColor, currentThemePreset } = useTheme();
 
   const getLanguageLabel = (lang) => {
     switch (lang) {
@@ -82,8 +83,18 @@ const HeaderControls = ({
         </button>
       </div>
 
-      {/* TOP RIGHT: Theme/Accent + Language + Settings/Profile */}
+      {/* TOP RIGHT: Theme Studio + Language + Settings/Profile */}
       <div className="flex items-center gap-1.5 sm:gap-2">
+        {/* Theme Studio Button */}
+        <button
+          onClick={onOpenThemeStudio}
+          title={`Theme Studio: ${currentThemePreset.name} Atmosphere`}
+          className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-bold flex items-center gap-1.5 border border-purple-500/25 transition-all shadow-sm active:scale-95"
+        >
+          <Palette className="w-3.5 h-3.5" style={{ color: accentColor }} />
+          <span className="hidden md:inline">{currentThemePreset.name}</span>
+        </button>
+
         {/* Persona Mode Indicator */}
         <button
           onClick={onOpenAdvConv}
@@ -91,7 +102,7 @@ const HeaderControls = ({
           className="h-8 sm:h-9 px-2.5 sm:px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 text-xs font-semibold flex items-center gap-1.5 border border-zinc-200/60 dark:border-zinc-700/60 transition-colors"
         >
           <Sparkles className="w-3.5 h-3.5" style={{ color: accentColor }} />
-          <span className="capitalize hidden md:inline">{currentMode !== 'general' ? currentMode : 'All-Rounder'}</span>
+          <span className="capitalize hidden lg:inline">{currentMode !== 'general' ? currentMode : 'All-Rounder'}</span>
         </button>
 
         {/* Language Selector */}
@@ -104,13 +115,13 @@ const HeaderControls = ({
           <span className="hidden sm:inline">{getLanguageLabel(currentLanguage)}</span>
         </button>
 
-        {/* Settings & Appearance */}
+        {/* General Settings */}
         <button
           onClick={onOpenSettings}
-          title="Settings & Appearance"
+          title="Settings & System Status"
           className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-all active:scale-95 border border-zinc-200/60 dark:border-zinc-700/60"
         >
-          <Palette className="w-4 h-4" />
+          <Sliders className="w-4 h-4" />
         </button>
 
         {/* User Account / Profile */}

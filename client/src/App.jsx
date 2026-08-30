@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useTheme } from './context/ThemeContext';
 import { useToast } from './context/ToastContext';
-import AnimatedBackground from './components/AnimatedBackground';
+import AtmosphericBackground from './components/AtmosphericBackground';
 import HeaderControls from './components/HeaderControls';
 import ModeSelectorBar from './components/ModeSelectorBar';
 import ChatArea from './components/ChatArea';
@@ -22,6 +22,7 @@ import ImageGalleryModal from './components/ImageGalleryModal';
 import LearningModal from './components/LearningModal';
 import NotesModal from './components/NotesModal';
 import ImageLightboxModal from './components/ImageLightboxModal';
+import ThemeStudioModal from './components/ThemeStudioModal';
 
 function App() {
   const { user, token } = useAuth();
@@ -62,6 +63,7 @@ function App() {
   const [isImageGalleryOpen, setIsImageGalleryOpen] = useState(false);
   const [isLearningOpen, setIsLearningOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [isThemeStudioOpen, setIsThemeStudioOpen] = useState(false);
   const [lightboxData, setLightboxData] = useState({ isOpen: false, url: '', alt: '' });
 
   const abortControllerRef = useRef(null);
@@ -466,13 +468,14 @@ function App() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden flex flex-col select-text font-sans bg-[#0c0d12] text-zinc-100 transition-colors duration-300">
-      {/* Dynamic Ambient Background Canvas */}
-      <AnimatedBackground />
+      {/* Dynamic Multi-Atmosphere Background Canvas */}
+      <AtmosphericBackground />
 
       {/* Top Header Controls Bar */}
       <HeaderControls
         onOpenAuth={() => setIsAuthOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenThemeStudio={() => setIsThemeStudioOpen(true)}
         onNewChat={handleNewChat}
         onToggleHistory={() => setIsHistoryOpen((prev) => !prev)}
         onOpenAdvConv={() => setIsAdvConvOpen(true)}
@@ -549,6 +552,7 @@ function App() {
         onClose={() => setIsCommandPaletteOpen(false)}
         onNewChat={handleNewChat}
         onOpenNotes={() => setIsNotesOpen(true)}
+        onOpenThemeStudio={() => setIsThemeStudioOpen(true)}
         onOpenProjects={() => setIsProjectsOpen(true)}
         onOpenImageGallery={() => setIsImageGalleryOpen(true)}
         onOpenLearning={() => setIsLearningOpen(true)}
@@ -597,6 +601,7 @@ function App() {
         onClose={() => setIsSettingsOpen(false)}
         onClearAllChats={handleClearAllChats}
         onOpenMemory={() => setIsMemoryOpen(true)}
+        onOpenThemeStudio={() => setIsThemeStudioOpen(true)}
       />
 
       <AdvancedConvModal
@@ -645,6 +650,11 @@ function App() {
         onClose={() => setLightboxData({ isOpen: false, url: '', alt: '' })}
         imageUrl={lightboxData.url}
         altText={lightboxData.alt}
+      />
+
+      <ThemeStudioModal
+        isOpen={isThemeStudioOpen}
+        onClose={() => setIsThemeStudioOpen(false)}
       />
     </div>
   );
