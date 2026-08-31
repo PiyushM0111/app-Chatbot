@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import MessageItem from './MessageItem';
 import QuickPrompts from './QuickPrompts';
-import { AlertCircle, RotateCcw, Bot, ArrowDown } from 'lucide-react';
+import { AlertCircle, RotateCcw, Bot, ArrowDown, UploadCloud } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 const ChatArea = ({
@@ -16,11 +16,17 @@ const ChatArea = ({
   onOpenLightbox,
   onEditImage,
   onRegenerateImage,
-  onSelectSuggestion
+  onSelectSuggestion,
+  onOpenReadingMode,
+  onOpenCodeDiff,
+  onContinueResponse,
+  onDropFiles,
+  generationStatus = 'Thinking...'
 }) => {
   const messagesEndRef = useRef(null);
   const containerRef = useRef(null);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const { accentColor } = useTheme();
 
   // Scroll detection
@@ -37,15 +43,48 @@ const ChatArea = ({
     }
   };
 
-  // Auto-scroll when messages update
+  // Auto-scroll when messages update, but only if user hasn't scrolled up
   useEffect(() => {
     if (!showScrollBottom) {
       scrollToBottom(true);
     }
   }, [messages, isLoading, isRegenerating]);
 
+  // Drag & drop handlers
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDraggingOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      if (onDropFiles) onDropFiles(e.dataTransfer.files);
+    }
+  };
+
   return (
-    <div className="relative flex-1 flex flex-col w-full h-full overflow-hidden">
+    <div 
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className="relative flex-1 flex flex-col w-full h-full overflow-hidden"
+    >
+      {/* Desktop Drag & Drop Visual Overlay */}
+      {isDraggingOver && (
+        <div className="absolute inset-0 z-40 bg-purple-950/80 backdrop-blur-md border-2 border-dashed border-purple-400 rounded-3xl m-4 flex flex-col items-center justify-center text-white animate-fadeIn pointer-events-none">
+          <UploadCloud className="w-16 h-16 text-purple-400 mb-3 animate-bounce" />
+          <h3 className="text-xl font-bold">Drop files here to attach</h3>
+          <p className="text-xs text-zinc-300 mt-1">Upload code, images, or documents to conversation</p>
+        </div>
+      )}
+
       {/* Full-Width Scrollable Container */}
       <div
         ref={containerRef}
@@ -78,11 +117,14 @@ const ChatArea = ({
                     onEditImage={onEditImage}
                     onRegenerateImage={onRegenerateImage}
                     onSelectSuggestion={onSelectSuggestion}
+                    onOpenReadingMode={onOpenReadingMode}
+                    onOpenCodeDiff={onOpenCodeDiff}
+                    onContinueResponse={onContinueResponse}
                   />
                 );
               })}
 
-              {/* Live Generation Indicator */}
+              {/* Contextual Generation Status Indicator */}
               {isLoading && (
                 <div className="flex items-start gap-2.5 sm:gap-3 my-3 animate-fadeIn">
                   <div
@@ -96,7 +138,7 @@ const ChatArea = ({
                   </div>
                   <div className="bg-white/90 dark:bg-zinc-900/90 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl rounded-tl-none border border-black/5 dark:border-white/10 backdrop-blur-xl flex items-center gap-2 shadow-sm">
                     <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
-                      Processing response...
+                      {generationStatus || 'Generating response...'}
                     </span>
                     <div className="flex items-center gap-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -133,15 +175,16 @@ const ChatArea = ({
         </div>
       </div>
 
-      {/* Floating Scroll to Bottom Button */}
+      {/* Floating Jump to Latest Button */}
       {showScrollBottom && (
         <button
           onClick={() => scrollToBottom(true)}
-          className="fixed bottom-24 sm:bottom-28 right-4 sm:right-8 z-30 p-2.5 rounded-full bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-xl border border-black/10 dark:border-white/10 hover:scale-110 active:scale-95 transition-all flex items-center justify-center animate-bounce"
-          title="Scroll to bottom"
+          className="fixed bottom-24 sm:bottom-28 right-4 sm:right-8 z-30 px-3.5 py-2 rounded-full bg-purple-600 hover:bg-purple-500 text-white shadow-xl border border-white/15 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 text-xs font-bold animate-bounce"
+          title="Scroll to latest messages"
           aria-label="Scroll to latest messages"
         >
           <ArrowDown className="w-4 h-4" />
+          <span>{isLoading ? 'New response' : 'Jump to latest'}</span>
         </button>
       )}
     </div>

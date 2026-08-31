@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Copy, Check, RotateCcw, User, Bot, Volume2, VolumeX, Download, FileText, Bookmark, Sparkles } from 'lucide-react';
+import { 
+  Copy, Check, RotateCcw, User, Bot, Volume2, VolumeX, Download, 
+  FileText, Bookmark, Sparkles, BookOpen, GitCompare, Play, ThumbsUp, ThumbsDown, ArrowRight
+} from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -17,12 +20,16 @@ const MessageItem = ({
   onOpenLightbox,
   onEditImage,
   onRegenerateImage,
-  onSelectSuggestion
+  onSelectSuggestion,
+  onOpenReadingMode,
+  onOpenCodeDiff,
+  onContinueResponse
 }) => {
   const [copied, setCopied] = useState(false);
   const [copiedCodeIndex, setCopiedCodeIndex] = useState(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isSavedToNotes, setIsSavedToNotes] = useState(false);
+  const [reaction, setReaction] = useState(null); // 'like' | 'dislike' | null
 
   const { token } = useAuth();
   const { accentColor } = useTheme();
@@ -33,14 +40,12 @@ const MessageItem = ({
     ? message.attachments
     : (typeof message.attachments === 'string' ? JSON.parse(message.attachments || '[]') : []);
 
-  // Filter image vs file attachments
   const imageAttachments = attachments.filter(a => a.type === 'image' || a.url);
   const fileAttachments = attachments.filter(a => a.type !== 'image' && !a.url);
 
   // Clean redundant image markdown and parameter text if present
   let displayContent = message.content || '';
   if (imageAttachments.length > 0 && !isUser) {
-    // Strip markdown images ![...](...) and metadata headers from the textual display
     displayContent = displayContent
       .replace(/!\[.*?\]\(.*?\)/g, '')
       .replace(/###\s*🎨\s*Generated Image:.*?\n+/gi, '')
@@ -150,9 +155,9 @@ const MessageItem = ({
   };
 
   return (
-    <div className={`flex w-full my-2.5 sm:my-4 ${isUser ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
-      <div className={`flex gap-2 sm:gap-3 max-w-[94%] sm:max-w-[85%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
-        {/* Avatar badge */}
+    <div className={`flex w-full my-2 sm:my-3 ${isUser ? 'justify-end' : 'justify-start'} animate-fadeIn`}>
+      <div className={`flex gap-2 sm:gap-3 max-w-[95%] sm:max-w-[85%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Avatar Badge */}
         <div
           className="w-7 h-7 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md text-xs font-bold select-none transition-transform hover:scale-105"
           style={{
@@ -172,7 +177,7 @@ const MessageItem = ({
                 : 'bg-white/90 dark:bg-zinc-900/90 text-zinc-900 dark:text-zinc-100 rounded-tl-none border border-black/5 dark:border-white/10 backdrop-blur-xl hover:shadow-lg'
             }`}
           >
-            {/* File Attachments (Non-image) */}
+            {/* File Attachments */}
             {fileAttachments.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2.5">
                 {fileAttachments.map((att, idx) => (
@@ -184,7 +189,7 @@ const MessageItem = ({
               </div>
             )}
 
-            {/* Generated Image Cards (Hero element) */}
+            {/* Generated Image Cards */}
             {imageAttachments.length > 0 && (
               <div className="space-y-2 mb-2">
                 {imageAttachments.map((imgAtt, idx) => (
@@ -256,6 +261,17 @@ const MessageItem = ({
                                 <span className="uppercase font-bold tracking-wider text-purple-400 ml-1">{lang}</span>
                               </div>
                               <div className="flex items-center gap-1.5">
+                                {onOpenCodeDiff && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onOpenCodeDiff(codeString, codeString, lang)}
+                                    className="flex items-center gap-1 hover:text-white transition-colors px-1.5 py-0.5 rounded hover:bg-zinc-800"
+                                    title="View Code Revision & Diff"
+                                  >
+                                    <GitCompare className="w-3 h-3 text-sky-400" />
+                                    <span className="hidden sm:inline">Diff</span>
+                                  </button>
+                                )}
                                 <button
                                   type="button"
                                   onClick={() => handleSaveToNotes(codeString, `${lang.toUpperCase()} Snippet`, 'Code')}
@@ -310,11 +326,25 @@ const MessageItem = ({
           </div>
 
           {/* Action Bar */}
-          <div className={`flex items-center gap-2 mt-1 px-1 text-[11px] text-zinc-500 dark:text-zinc-400 ${isUser ? 'justify-end' : 'justify-start'}`}>
+          <div className={`flex items-center gap-1.5 sm:gap-2 mt-1 px-1 text-[11px] text-zinc-500 dark:text-zinc-400 ${isUser ? 'justify-end' : 'justify-start'}`}>
             <span>{formatTimestamp(message.created_at)}</span>
 
             {!isUser && (
               <>
+                {/* Reading Mode Button */}
+                {displayContent.length > 250 && onOpenReadingMode && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenReadingMode(displayContent, 'Reading Mode')}
+                    className="flex items-center gap-1 hover:text-purple-400 transition-colors p-1 rounded hover:bg-black/5 dark:hover:bg-white/5"
+                    title="Open in Distraction-Free Reading Mode"
+                  >
+                    <BookOpen className="w-3 h-3 text-purple-400" />
+                    <span>Read</span>
+                  </button>
+                )}
+
+                {/* Bookmark/Note */}
                 <button
                   type="button"
                   onClick={() => handleSaveToNotes(displayContent || message.content, 'AI Content', 'Learning')}
@@ -325,6 +355,7 @@ const MessageItem = ({
                   <span>{isSavedToNotes ? 'Saved' : 'Note'}</span>
                 </button>
 
+                {/* Copy */}
                 <button
                   type="button"
                   onClick={handleCopyMessage}
@@ -344,6 +375,7 @@ const MessageItem = ({
                   )}
                 </button>
 
+                {/* Listen */}
                 <button
                   type="button"
                   onClick={handleSpeakText}
@@ -356,7 +388,40 @@ const MessageItem = ({
                   <span>{isSpeaking ? 'Stop' : 'Listen'}</span>
                 </button>
 
-                {isLastAiMessage && (
+                {/* Like / Dislike Reactions */}
+                <button
+                  type="button"
+                  onClick={() => setReaction(prev => prev === 'like' ? null : 'like')}
+                  className={`p-1 rounded transition-colors ${reaction === 'like' ? 'text-green-500 font-bold' : 'hover:text-zinc-900 dark:hover:text-white'}`}
+                  title="Good response"
+                >
+                  <ThumbsUp className="w-3 h-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReaction(prev => prev === 'dislike' ? null : 'dislike')}
+                  className={`p-1 rounded transition-colors ${reaction === 'dislike' ? 'text-red-500 font-bold' : 'hover:text-zinc-900 dark:hover:text-white'}`}
+                  title="Needs improvement"
+                >
+                  <ThumbsDown className="w-3 h-3" />
+                </button>
+
+                {/* Continue Response (Requirement 23) */}
+                {isLastAiMessage && onContinueResponse && (
+                  <button
+                    type="button"
+                    onClick={onContinueResponse}
+                    disabled={isRegenerating}
+                    className="flex items-center gap-1 text-purple-400 hover:text-purple-300 font-bold transition-colors p-1 rounded hover:bg-purple-500/10"
+                    title="Continue generating more details"
+                  >
+                    <ArrowRight className="w-3 h-3" />
+                    <span>Continue</span>
+                  </button>
+                )}
+
+                {/* Regenerate */}
+                {isLastAiMessage && onRegenerate && (
                   <button
                     type="button"
                     onClick={onRegenerate}
@@ -372,7 +437,7 @@ const MessageItem = ({
             )}
           </div>
 
-          {/* Interactive Contextual Follow-Up Suggestions (Section 25) */}
+          {/* Contextual Follow-Up Suggestions */}
           {isLastAiMessage && message.suggestions && message.suggestions.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2.5 pt-1 animate-fadeIn">
               {message.suggestions.map((suggestion, sIdx) => (
