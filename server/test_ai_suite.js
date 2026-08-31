@@ -81,6 +81,13 @@ const runCompleteAISuite = async () => {
     { input: 'Create a square profile illustration.', expected: 'image_generation' },
     { input: 'Generate an image with no text.', expected: 'image_generation' },
     { input: 'Generate an image containing the text Nexus AI.', expected: 'image_generation' },
+    { input: 'Generate an image of a boy learning hacking.', expected: 'image_generation' },
+    { input: 'Create a cinematic cyberpunk city at night.', expected: 'image_generation' },
+    { input: 'Make a realistic image of a golden retriever running on a beach.', expected: 'image_generation' },
+    { input: 'Generate an image of a Python programmer working at night.', expected: 'image_generation' },
+    { input: 'Create an illustration of a futuristic AI server room.', expected: 'image_generation' },
+    { input: 'Write Python code for an image-generation API.', expected: 'chat' },
+    { input: 'Explain how image generation works.', expected: 'chat' },
     { input: 'what is image generation?', expected: 'chat' },
     { input: 'explain how image generators work', expected: 'chat' },
 
@@ -254,6 +261,34 @@ const runCompleteAISuite = async () => {
       !finalImgMsg.content.includes('Understanding Generate an image') &&
       !finalImgMsg.content.includes('Visual Parameters:'),
       'CRITICAL FINAL TEST: Full prompt routes directly to image result without text article or metadata clutter'
+    );
+
+    // Test F: Code request about image generation
+    const codeApiRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Write Python code for an image-generation API.'
+    }, token);
+    assert(
+      codeApiRes.status === 200 &&
+      (!codeApiRes.data.aiMessage.attachments || codeApiRes.data.aiMessage.attachments.length === 0) &&
+      (codeApiRes.data.aiMessage.content.includes('def') || codeApiRes.data.aiMessage.content.includes('import') || codeApiRes.data.aiMessage.content.includes('python') || codeApiRes.data.aiMessage.content.includes('api')),
+      'Test F: "Write Python code for an image-generation API" → CODE/TEXT response (NOT image)'
+    );
+
+    // Test H: Illustration of AI server room
+    const serverRoomRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Create an illustration of a futuristic AI server room.'
+    }, token);
+    assert(
+      serverRoomRes.status === 200 && serverRoomRes.data.aiMessage.attachments?.length > 0,
+      'Test H: "Create an illustration of a futuristic AI server room" → Image Generation result'
+    );
+
+    // Test J: Conversation History Persistence
+    const historyRes = await request(`/api/conversations/${convId}`, 'GET', null, token);
+    const hasPersistedImages = historyRes.data.messages?.some(m => m.attachments && m.attachments.length > 0);
+    assert(
+      historyRes.status === 200 && hasPersistedImages,
+      'Test J: Generated images remain attached and persisted in conversation history upon refresh'
     );
 
     const codePyRes = await request(`/api/conversations/${convId}/messages`, 'POST', {

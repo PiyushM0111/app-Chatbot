@@ -51,6 +51,7 @@ const MessageItem = ({
       .replace(/###\s*🎨\s*Generated Image:.*?\n+/gi, '')
       .replace(/\*\*Visual Parameters:\*\*[\s\S]*?(?=(?:\n\n[^\-\*]|$))/gi, '')
       .replace(/\*You can ask to modify[\s\S]*?\*/gi, '')
+      .replace(/\{"generationId"[\s\S]*?\}/gi, '')
       .trim();
   }
 

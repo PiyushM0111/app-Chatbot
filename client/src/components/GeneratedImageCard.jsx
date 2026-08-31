@@ -47,7 +47,7 @@ const GeneratedImageCard = ({
       const blobUrl = URL.createObjectURL(blob);
 
       const cleanSlug = subject.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
-      const filename = `nexus-ai-${cleanSlug || 'image'}-${Date.now()}.${ext}`;
+      const filename = `nexus-ai-image-${attachment.generationId || cleanSlug || Date.now()}.${ext}`;
 
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -63,7 +63,7 @@ const GeneratedImageCard = ({
       const link = document.createElement('a');
       link.href = imageUrl;
       link.target = '_blank';
-      link.download = `nexus-ai-${Date.now()}.${ext}`;
+      link.download = `nexus-ai-image-${attachment.generationId || Date.now()}.${ext}`;
       link.click();
       showToast('Opening image download...', 'info');
     } finally {

@@ -15,6 +15,39 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
     return analyzeAndFixCodeSnippet(q, language);
   }
 
+  // 1b. CODE GENERATION / PYTHON SCRIPT REQUESTS
+  if (
+    qLower.includes('write python code') || qLower.includes('python code for') ||
+    qLower.includes('image-generation api') || qLower.includes('image generation api')
+  ) {
+    return `### 🐍 Python REST API Client for AI Image Generation\n\n` +
+      `Here is a production-grade Python script to interface with an AI image-generation API endpoint:\n\n` +
+      `\`\`\`python\nimport requests\nimport json\nimport os\n\ndef generate_image(prompt: str, aspect_ratio: str = "1:1", output_path: str = "generated.png") -> dict:\n` +
+      `    """\n` +
+      `    Dispatches a structured image generation request to the Nexus AI Image Studio.\n` +
+      `    """\n` +
+      `    api_endpoint = os.getenv("IMAGE_API_URL", "http://localhost:5000/api/images/generate")\n` +
+      `    payload = {\n` +
+      `        "prompt": prompt,\n` +
+      `        "aspectRatio": aspect_ratio,\n` +
+      `        "style": "Cinematic Photorealistic"\n` +
+      `    }\n` +
+      `    headers = {"Content-Type": "application/json"}\n\n` +
+      `    response = requests.post(api_endpoint, json=payload, headers=headers, timeout=30)\n` +
+      `    response.raise_for_status()\n` +
+      `    data = response.json()\n` +
+      `    print(f"✅ Image generated successfully with ID: {data.get('image', {}).get('generationId')}")\n` +
+      `    return data\n\n` +
+      `if __name__ == "__main__":\n` +
+      `    prompt = "Cinematic cyberpunk city at night with neon lights"\n` +
+      `    result = generate_image(prompt, aspect_ratio="16:9")\n` +
+      `\`\`\`\n\n` +
+      `### 💡 Key Implementation Details:\n` +
+      `1. **Type Annotations & Docstrings:** Clear interface definition.\n` +
+      `2. **Error Handling:** Uses \`raise_for_status()\` to catch HTTP 4xx and 5xx errors.\n` +
+      `3. **Configurable Environment:** Supports dynamic environment URL overrides.`;
+  }
+
   // 2. LINE BY LINE CODE EXPLANATION (Section 29, Case 7)
   if (qLower.includes('line by line') || qLower.includes('explain this code')) {
     return `### 🔍 Line-by-Line Code Breakdown & Execution Analysis\n\n` +

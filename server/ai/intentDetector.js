@@ -55,6 +55,14 @@ export const classifyIntent = (input) => {
   const clean = input.trim();
   const lower = clean.toLowerCase();
 
+  // Exclude code writing/programming requests (e.g. "Write Python code for an image-generation API")
+  if (
+    /^(?:write|create|give\s+me|show\s+me)\s+(?:python|javascript|js|node|html|css|cpp|c\+\+|java|c#|sql|typescript|ts|golang|go|rust|bash|shell)?\s*(?:code|script|program|function|class|api|endpoint|backend)\s+(?:for|to|that|about)\b/i.test(clean) ||
+    /^(?:write|show\s+me)\s+(?:code|python\s+code|script)\b/i.test(clean)
+  ) {
+    return { intent: 'chat', entities: {} };
+  }
+
   // Exclude informational/educational questions about image generation (Requirement 2 & 4)
   if (
     /^(?:what is|what are|explain|tell me about|how does|how to|describe how|define|can you explain)\s+.*(?:image generation|image model|generating images|diffusion model|gan|text to image|midjourney|dall-e|stable diffusion)\b/i.test(clean) ||
