@@ -2,8 +2,16 @@ import sqlite3 from 'sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const getDirname = () => {
+  try {
+    if (typeof __dirname !== 'undefined') return __dirname;
+    if (typeof import.meta !== 'undefined' && import.meta.url) {
+      return path.dirname(fileURLToPath(import.meta.url));
+    }
+  } catch (e) {}
+  return process.cwd();
+};
+const __dirname = getDirname();
 
 const isServerless = !!(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.LAMBDA_TASK_ROOT);
 const dbPath = isServerless ? path.resolve('/tmp', 'chatbot.db') : path.resolve(__dirname, 'chatbot.db');
@@ -182,7 +190,21 @@ export const initDB = async () => {
     console.log('Database tables & indexes initialized successfully.');
   } catch (error) {
     console.error('Error initializing database schema:', error);
+    throw error;
   }
+};
+
+let dbInitPromise = null;
+
+export const ensureDatabaseInitialized = () => {
+  if (!dbInitPromise) {
+    dbInitPromise = initDB().catch((err) => {
+      console.error('Database initialization failed:', err);
+      dbInitPromise = null;
+      throw err;
+    });
+  }
+  return dbInitPromise;
 };
 
 export default db;

@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { initDB } from './db.js';
+import { ensureDatabaseInitialized } from './db.js';
 import authRoutes from './routes/auth.js';
 import conversationRoutes from './routes/conversations.js';
 import chatRoutes from './routes/chat.js';
@@ -14,18 +14,21 @@ import imageRoutes from './routes/images.js';
 import notesRoutes from './routes/notes.js';
 import { rateLimiter } from './middleware/rateLimiter.js';
 
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const getDirname = () => {
+  try {
+    if (typeof __dirname !== 'undefined') return __dirname;
+    if (typeof import.meta !== 'undefined' && import.meta.url) {
+      return path.dirname(fileURLToPath(import.meta.url));
+    }
+  } catch (e) {}
+  return process.cwd();
+};
+const __dirname = getDirname();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Initialize Database & Safe Migrations
-await initDB();
-
-// Middleware
+// Middleware - CORS with explicit preflight support
 app.use(cors({
   origin: true,
   credentials: true,
@@ -39,11 +42,22 @@ app.use((req, res, next) => {
   if (req.url.startsWith('/.netlify/functions/api')) {
     let clean = req.url.replace(/^\/\.netlify\/functions\/api/, '');
     if (!clean.startsWith('/api') && clean !== '') {
-      clean = `/api${clean}`;
+      clean = `/api${clean.startsWith('/') ? '' : '/'}${clean}`;
     }
     req.url = clean || '/api/health';
   }
   next();
+});
+
+// Safe async database initialization middleware (No top-level await)
+app.use(async (req, res, next) => {
+  try {
+    await ensureDatabaseInitialized();
+    next();
+  } catch (dbErr) {
+    console.error('Database initialization error during request:', dbErr);
+    res.status(500).json({ success: false, error: 'Database service unavailable. Please try again.' });
+  }
 });
 
 app.use(express.json({ limit: '10mb' }));
@@ -102,6 +116,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error. Please try again.' });
 });
 
+// Standalone Server Listener (Only when executed directly in Node, never inside Netlify Lambda)
 const isDirectRun = process.argv[1] && (
   process.argv[1].endsWith('server.js') || 
   process.argv[1].endsWith('server\\server.js') ||
@@ -109,8 +124,15 @@ const isDirectRun = process.argv[1] && (
 );
 
 if (isDirectRun && !process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
-  app.listen(PORT, () => {
-    console.log(`🚀 Nexus AI Platform Server running on http://localhost:${PORT}`);
+  ensureDatabaseInitialized().then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 Nexus AI Platform Server running on http://localhost:${PORT}`);
+    });
+  }).catch((err) => {
+    console.error('Failed to initialize database on startup:', err);
+    app.listen(PORT, () => {
+      console.log(`🚀 Nexus AI Platform Server running (DB degraded mode) on http://localhost:${PORT}`);
+    });
   });
 }
 

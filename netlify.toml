@@ -4,10 +4,14 @@
   publish = "dist"
   functions = "../netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["server/**"]
+
 # 1. API Route Priority: Forward all API calls to Netlify Serverless API Function
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api/api/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
   force = true
 

@@ -50,43 +50,53 @@ const runNetlifyFunctionTest = async () => {
     };
   };
 
-  // 1. GET /api/health via Netlify Function rewrite
-  const healthRes = await invokeEvent('/.netlify/functions/api/api/health', 'GET');
+  // 1. GET /health via Netlify Function rewrite (/.netlify/functions/api/health)
+  const healthRes = await invokeEvent('/.netlify/functions/api/health', 'GET');
   assert(
     healthRes.statusCode === 200 &&
     healthRes.data.success === true &&
     healthRes.data.status === 'healthy',
-    'Netlify Function 1: GET /api/health returns 200 JSON healthy status',
+    'Netlify Function 1: GET /health via /.netlify/functions/api/health returns 200 JSON healthy status',
     `Status: ${healthRes.statusCode}, Data: ${JSON.stringify(healthRes.data)}`
   );
 
-  // 2. POST /api/auth/guest via Netlify Function rewrite
-  const guestRes = await invokeEvent('/.netlify/functions/api/api/auth/guest', 'POST', {});
+  // 2. GET /api/health via Netlify Function rewrite (/.netlify/functions/api/api/health)
+  const healthResWithApi = await invokeEvent('/.netlify/functions/api/api/health', 'GET');
+  assert(
+    healthResWithApi.statusCode === 200 &&
+    healthResWithApi.data.success === true &&
+    healthResWithApi.data.status === 'healthy',
+    'Netlify Function 2: GET /api/health returns 200 JSON healthy status',
+    `Status: ${healthResWithApi.statusCode}, Data: ${JSON.stringify(healthResWithApi.data)}`
+  );
+
+  // 3. POST /auth/guest via Netlify Function rewrite (/.netlify/functions/api/auth/guest)
+  const guestRes = await invokeEvent('/.netlify/functions/api/auth/guest', 'POST', {});
   const guestToken = guestRes.data?.token;
   assert(
     guestRes.statusCode === 200 &&
     guestRes.data.success === true &&
     guestToken &&
     guestRes.data.user.name.startsWith('Guest_'),
-    'Netlify Function 2: POST /api/auth/guest returns 200 JSON with guest session',
+    'Netlify Function 3: POST /auth/guest returns 200 JSON with guest session',
     `Status: ${guestRes.statusCode}, Data: ${JSON.stringify(guestRes.data)}`
   );
 
-  // 3. GET /api/auth/me via Netlify Function with Bearer token
-  const meRes = await invokeEvent('/.netlify/functions/api/api/auth/me', 'GET', null, {
+  // 4. GET /auth/me via Netlify Function with Bearer token
+  const meRes = await invokeEvent('/.netlify/functions/api/auth/me', 'GET', null, {
     authorization: `Bearer ${guestToken}`
   });
   assert(
     meRes.statusCode === 200 &&
     meRes.data.success === true &&
     meRes.data.user.id === guestRes.data.user.id,
-    'Netlify Function 3: GET /api/auth/me returns 200 JSON with authenticated user',
+    'Netlify Function 4: GET /auth/me returns 200 JSON with authenticated user',
     `Status: ${meRes.statusCode}, Data: ${JSON.stringify(meRes.data)}`
   );
 
-  // 4. POST /api/auth/signup via Netlify Function rewrite
-  const testEmail = `netlify_test_${Date.now()}@example.com`;
-  const signupRes = await invokeEvent('/.netlify/functions/api/api/auth/signup', 'POST', {
+  // 5. POST /auth/signup via Netlify Function rewrite
+  const testEmail = `netlify_splat_${Date.now()}@example.com`;
+  const signupRes = await invokeEvent('/.netlify/functions/api/auth/signup', 'POST', {
     name: 'Netlify Tester',
     email: testEmail,
     password: 'Password123!'
@@ -96,12 +106,12 @@ const runNetlifyFunctionTest = async () => {
     signupRes.data.success === true &&
     signupRes.data.token &&
     signupRes.data.user.email === testEmail,
-    'Netlify Function 4: POST /api/auth/signup returns 201 JSON with created user',
+    'Netlify Function 5: POST /auth/signup returns 201 JSON with created user',
     `Status: ${signupRes.statusCode}, Data: ${JSON.stringify(signupRes.data)}`
   );
 
-  // 5. POST /api/auth/login via Netlify Function rewrite
-  const loginRes = await invokeEvent('/.netlify/functions/api/api/auth/login', 'POST', {
+  // 6. POST /auth/login via Netlify Function rewrite
+  const loginRes = await invokeEvent('/.netlify/functions/api/auth/login', 'POST', {
     email: testEmail,
     password: 'Password123!'
   });
@@ -110,12 +120,12 @@ const runNetlifyFunctionTest = async () => {
     loginRes.data.success === true &&
     loginRes.data.token &&
     loginRes.data.user.email === testEmail,
-    'Netlify Function 5: POST /api/auth/login returns 200 JSON with valid token',
+    'Netlify Function 6: POST /auth/login returns 200 JSON with valid token',
     `Status: ${loginRes.statusCode}, Data: ${JSON.stringify(loginRes.data)}`
   );
 
-  // 6. Invalid credentials via Netlify Function
-  const invalidLoginRes = await invokeEvent('/.netlify/functions/api/api/auth/login', 'POST', {
+  // 7. Invalid credentials via Netlify Function
+  const invalidLoginRes = await invokeEvent('/.netlify/functions/api/auth/login', 'POST', {
     email: testEmail,
     password: 'WrongPassword!'
   });
@@ -123,7 +133,7 @@ const runNetlifyFunctionTest = async () => {
     invalidLoginRes.statusCode === 401 &&
     invalidLoginRes.data.success === false &&
     invalidLoginRes.data.error.includes('Invalid email or password'),
-    'Netlify Function 6: POST /api/auth/login invalid credentials returns 401 JSON error',
+    'Netlify Function 7: POST /auth/login invalid credentials returns 401 JSON error',
     `Status: ${invalidLoginRes.statusCode}, Data: ${JSON.stringify(invalidLoginRes.data)}`
   );
 
