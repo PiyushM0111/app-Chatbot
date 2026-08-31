@@ -10,7 +10,7 @@ const ACTION_CARDS = [
     color: '#10B981',
     category: 'CODE & ARCHITECTURE',
     title: 'Build Something',
-    description: 'Design a full-stack REST API with authentication and database schemas.',
+    description: 'Design full-stack APIs, database schemas, and microservices.',
     prompt: 'Show me how to build a scalable, production-grade REST API in Node.js with Server-Sent Events (SSE) and SQLite database.'
   },
   {
@@ -19,7 +19,7 @@ const ACTION_CARDS = [
     color: '#A855F7',
     category: 'STUDY & TUTOR',
     title: 'Learn Something',
-    description: 'Master cybersecurity, network security principles, and defensive practices.',
+    description: 'Master cybersecurity, network security principles, and defense.',
     prompt: 'Can you tell me about cybersecurity and explain its core pillars, threat types, and best practices?'
   },
   {
@@ -37,7 +37,7 @@ const ACTION_CARDS = [
     color: '#F59E0B',
     category: 'DEEP REASONING',
     title: 'Ask Anything',
-    description: 'Understand quantum computing and superposition in simple, intuitive terms.',
+    description: 'Explore quantum computing and physics in intuitive terms.',
     prompt: 'Can you explain Quantum Computing in simple, friendly terms with real everyday examples?'
   }
 ];
@@ -49,52 +49,52 @@ const QuickPrompts = ({ onSelectPrompt, onOpenPrompts }) => {
   const getGreeting = () => {
     if (user?.name) {
       const firstName = user.name.split(' ')[0];
-      return `Hey ${firstName}, what are we building today?`;
+      return `Hey ${firstName}, what can we explore?`;
     }
     return 'What can we explore today?';
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] text-center max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-6 animate-fadeIn">
-      {/* Minimal AI Brand Identity with Breathing Ambient Aura */}
-      <div className="relative mb-3 sm:mb-4 group">
+    <div className="flex flex-col items-center justify-center w-full max-w-3xl mx-auto px-3 sm:px-6 py-2 sm:py-6 text-center animate-fadeIn">
+      {/* Responsive AI Brand Identity with Ambient Aura */}
+      <div className="relative mb-2.5 sm:mb-4 group">
         <div 
-          className="absolute -inset-2.5 sm:-inset-3.5 rounded-full blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-700 pointer-events-none"
+          className="absolute -inset-2.5 sm:-inset-4 rounded-full blur-xl opacity-35 group-hover:opacity-60 transition-opacity duration-700 pointer-events-none"
           style={{ background: `radial-gradient(circle, ${accentColor}, #38BDF8)` }}
         />
         <div
-          className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-xl border border-white/20 dark:border-white/10 backdrop-blur-md"
+          className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-xl border border-white/20 dark:border-white/10 backdrop-blur-md transition-transform duration-300 group-hover:scale-105"
           style={{
-            background: `linear-gradient(135deg, ${accentColor}cc, #E9D5FF)`,
+            background: `linear-gradient(135deg, ${accentColor}dd, #F3E8FF)`,
             color: '#1C1028'
           }}
         >
-          <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
+          <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 stroke-[2.2]" />
         </div>
       </div>
 
-      {/* Dynamic Personalized Greeting */}
-      <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-white mb-1.5 px-2">
+      {/* Responsive Heading */}
+      <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white mb-1 px-2 leading-tight">
         {getGreeting()}
       </h1>
 
-      {/* Short Capability Statement */}
-      <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-6 max-w-md leading-relaxed px-3">
+      {/* Short Subtitle */}
+      <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-4 sm:mb-6 max-w-md leading-relaxed px-3">
         Full-stack software architecture, deep reasoning, creative studio & personal tutor.
       </p>
 
-      {/* 4 High-Value Action Cards (2x2 Grid) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full text-left max-w-2xl mb-4">
+      {/* Responsive Quick Action Cards (1 Column on Mobile, 2 Columns on Tablet/Desktop) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3.5 w-full text-left max-w-2xl mb-4">
         {ACTION_CARDS.map((card) => {
           const Icon = card.icon;
           return (
             <button
               key={card.id}
               onClick={() => onSelectPrompt(card.prompt)}
-              className="p-3.5 rounded-2xl bg-white/80 dark:bg-zinc-800/60 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/60 shadow-sm hover:shadow-md transition-all duration-200 group text-left flex items-start gap-3 backdrop-blur-sm hover:-translate-y-0.5 active:scale-98"
+              className="p-3 sm:p-4 rounded-2xl bg-white/80 dark:bg-zinc-900/70 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all duration-200 group text-left flex items-center sm:items-start gap-3 backdrop-blur-md hover:-translate-y-0.5 active:scale-[0.98] min-h-[58px] sm:min-h-[72px]"
             >
               <div
-                className="p-2.5 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0"
+                className="p-2 sm:p-2.5 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 flex-shrink-0 shadow-sm"
                 style={{
                   backgroundColor: `${card.color}18`,
                   color: card.color
@@ -104,12 +104,12 @@ const QuickPrompts = ({ onSelectPrompt, onOpenPrompts }) => {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                  <span className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors truncate">
                     {card.title}
                   </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-zinc-400 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
+                  <ArrowRight className="w-3.5 h-3.5 text-zinc-400 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all flex-shrink-0 hidden sm:block" />
                 </div>
-                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-2">
+                <p className="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-1 sm:line-clamp-2">
                   {card.description}
                 </p>
               </div>
@@ -122,7 +122,7 @@ const QuickPrompts = ({ onSelectPrompt, onOpenPrompts }) => {
       {onOpenPrompts && (
         <button
           onClick={onOpenPrompts}
-          className="px-3.5 py-1.5 rounded-full text-xs font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors flex items-center gap-1.5"
+          className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors flex items-center gap-1.5 active:scale-95"
         >
           <LayoutGrid className="w-3.5 h-3.5" />
           <span>Browse 20+ Prompt Templates</span>

@@ -2,31 +2,20 @@ import React, { useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 
 const AtmosphericBackground = () => {
-  const { theme, intensity, accentColor } = useTheme();
+  const { theme, intensity } = useTheme();
   const canvasRef = useRef(null);
   const mouseRef = useRef({ x: -1000, y: -1000, targetX: -1000, targetY: -1000 });
   const animFrameRef = useRef(null);
 
-  // Track mouse coordinates smoothly
+  // Track mouse coordinates smoothly (Desktop only)
   useEffect(() => {
     const handleMouseMove = (e) => {
       mouseRef.current.targetX = e.clientX;
       mouseRef.current.targetY = e.clientY;
     };
-    const handleTouchMove = (e) => {
-      if (e.touches && e.touches[0]) {
-        mouseRef.current.targetX = e.touches[0].clientX;
-        mouseRef.current.targetY = e.touches[0].clientY;
-      }
-    };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchmove', handleTouchMove);
-    };
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   // Theme Canvas Particle & Entity Engine
@@ -38,17 +27,19 @@ const AtmosphericBackground = () => {
 
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
+    let isMobile = width < 768;
 
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+      isMobile = width < 768;
     };
     window.addEventListener('resize', handleResize);
 
-    // Particle multiplier based on intensity
-    let countMultiplier = 1;
-    if (intensity === 'calm') countMultiplier = 0.5;
-    if (intensity === 'immersive') countMultiplier = 1.6;
+    // Particle multiplier based on screen width & intensity
+    let countMultiplier = isMobile ? 0.4 : 1.0;
+    if (intensity === 'calm') countMultiplier *= 0.5;
+    if (intensity === 'immersive') countMultiplier *= 1.5;
 
     // Check reduced motion preference
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -83,11 +74,11 @@ const AtmosphericBackground = () => {
           y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.2,
           vy: (Math.random() - 0.5) * 0.2 + 0.1,
-          size: Math.random() * 12 + 6,
+          size: Math.random() * (isMobile ? 8 : 12) + 5,
           rotation: Math.random() * Math.PI * 2,
           rotSpeed: (Math.random() - 0.5) * 0.015,
           alpha: Math.random() * 0.4 + 0.2,
-          points: 4 + (i % 3) * 2 // diamond / hex ice shards
+          points: 4 + (i % 3) * 2
         });
       }
     } else if (theme === 'verdant') {
@@ -101,7 +92,7 @@ const AtmosphericBackground = () => {
           y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.3,
           vy: (Math.random() - 0.5) * 0.3 + 0.15,
-          size: isLeaf ? Math.random() * 7 + 4 : Math.random() * 3 + 1.5,
+          size: isLeaf ? Math.random() * (isMobile ? 5 : 7) + 3 : Math.random() * 3 + 1.5,
           rotation: Math.random() * Math.PI * 2,
           rotSpeed: (Math.random() - 0.5) * 0.02,
           alpha: Math.random() * 0.6 + 0.2,
@@ -117,7 +108,7 @@ const AtmosphericBackground = () => {
           x: Math.random() * width,
           y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.5,
-          vy: -(Math.random() * 0.8 + 0.4), // Upward float
+          vy: -(Math.random() * 0.8 + 0.4),
           size: Math.random() * 3 + 1,
           alpha: Math.random() * 0.8 + 0.2,
           decay: Math.random() * 0.005 + 0.002,
@@ -130,7 +121,7 @@ const AtmosphericBackground = () => {
       const centerX = width / 2;
       const centerY = height / 2;
       for (let i = 0; i < count; i++) {
-        const orbitRadius = 120 + (i % 6) * 70 + Math.random() * 20;
+        const orbitRadius = (isMobile ? 70 : 120) + (i % 6) * (isMobile ? 35 : 70) + Math.random() * 15;
         const angle = Math.random() * Math.PI * 2;
         entities.push({
           type: 'orbit_particle',
@@ -152,7 +143,7 @@ const AtmosphericBackground = () => {
           y: Math.random() * height,
           vx: (Math.random() - 0.5) * 0.2,
           vy: (Math.random() - 0.5) * 0.2,
-          size: Math.random() * 35 + 15,
+          size: Math.random() * (isMobile ? 22 : 35) + 12,
           alpha: Math.random() * 0.18 + 0.06,
           color: i % 2 === 0 ? '#C084FC' : '#F472B6'
         });
@@ -164,8 +155,10 @@ const AtmosphericBackground = () => {
       ctx.clearRect(0, 0, width, height);
 
       // Smooth mouse follow interpolation
-      mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.1;
-      mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.1;
+      if (!isMobile) {
+        mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.1;
+        mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.1;
+      }
       const mx = mouseRef.current.x;
       const my = mouseRef.current.y;
 
@@ -186,14 +179,16 @@ const AtmosphericBackground = () => {
             if (e.alpha > 0.95) e.twinkleDir = -1;
             if (e.alpha < 0.25) e.twinkleDir = 1;
 
-            // Pointer Repel
-            const dx = e.x - mx;
-            const dy = e.y - my;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 120 && dist > 0) {
-              const force = (120 - dist) / 120;
-              e.x += (dx / dist) * force * 3;
-              e.y += (dy / dist) * force * 3;
+            // Pointer Repel (Desktop only)
+            if (!isMobile) {
+              const dx = e.x - mx;
+              const dy = e.y - my;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 120 && dist > 0) {
+                const force = (120 - dist) / 120;
+                e.x += (dx / dist) * force * 3;
+                e.y += (dy / dist) * force * 3;
+              }
             }
           }
 
@@ -218,15 +213,17 @@ const AtmosphericBackground = () => {
             if (e.y < -20) e.y = height + 20;
             if (e.y > height + 20) e.y = -20;
 
-            // Pointer Crystal Separation & Spin
-            const dx = e.x - mx;
-            const dy = e.y - my;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 140 && dist > 0) {
-              const force = (140 - dist) / 140;
-              e.x += (dx / dist) * force * 2.5;
-              e.y += (dy / dist) * force * 2.5;
-              e.rotation += force * 0.04;
+            // Pointer Crystal Separation & Spin (Desktop only)
+            if (!isMobile) {
+              const dx = e.x - mx;
+              const dy = e.y - my;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 140 && dist > 0) {
+                const force = (140 - dist) / 140;
+                e.x += (dx / dist) * force * 2.5;
+                e.y += (dy / dist) * force * 2.5;
+                e.rotation += force * 0.04;
+              }
             }
           }
 
@@ -234,7 +231,6 @@ const AtmosphericBackground = () => {
           ctx.translate(e.x, e.y);
           ctx.rotate(e.rotation);
           ctx.beginPath();
-          // Draw diamond shard
           ctx.moveTo(0, -e.size);
           ctx.lineTo(e.size * 0.6, 0);
           ctx.lineTo(0, e.size);
@@ -263,14 +259,16 @@ const AtmosphericBackground = () => {
             if (e.y < 0) e.y = height;
             if (e.y > height) e.y = 0;
 
-            // Pointer Organic Swirl
-            const dx = e.x - mx;
-            const dy = e.y - my;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 130 && dist > 0) {
-              const force = (130 - dist) / 130;
-              e.x += -dy * force * 0.05;
-              e.y += dx * force * 0.05;
+            // Pointer Organic Swirl (Desktop only)
+            if (!isMobile) {
+              const dx = e.x - mx;
+              const dy = e.y - my;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 130 && dist > 0) {
+                const force = (130 - dist) / 130;
+                e.x += -dy * force * 0.05;
+                e.y += dx * force * 0.05;
+              }
             }
           }
 
@@ -280,7 +278,6 @@ const AtmosphericBackground = () => {
           ctx.globalAlpha = e.alpha;
 
           if (e.type === 'leaf') {
-            // Draw organic curved leaf
             ctx.beginPath();
             ctx.ellipse(0, 0, e.size, e.size * 0.45, 0, 0, Math.PI * 2);
             ctx.fillStyle = 'rgba(16, 185, 129, 0.35)';
@@ -289,7 +286,6 @@ const AtmosphericBackground = () => {
             ctx.fill();
             ctx.stroke();
           } else {
-            // Spore
             ctx.beginPath();
             ctx.arc(0, 0, e.size, 0, Math.PI * 2);
             ctx.fillStyle = '#F59E0B';
@@ -315,14 +311,16 @@ const AtmosphericBackground = () => {
             if (e.x < 0) e.x = width;
             if (e.x > width) e.x = 0;
 
-            // Pointer Scatter
-            const dx = e.x - mx;
-            const dy = e.y - my;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 120 && dist > 0) {
-              const force = (120 - dist) / 120;
-              e.x += (dx / dist) * force * 3;
-              e.y += (dy / dist) * force * 3;
+            // Pointer Scatter (Desktop only)
+            if (!isMobile) {
+              const dx = e.x - mx;
+              const dy = e.y - my;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 120 && dist > 0) {
+                const force = (120 - dist) / 120;
+                e.x += (dx / dist) * force * 3;
+                e.y += (dy / dist) * force * 3;
+              }
             }
           }
 
@@ -341,16 +339,14 @@ const AtmosphericBackground = () => {
         const cx = width / 2;
         const cy = height / 2;
 
-        // Draw Center Corona Glow
-        const grad = ctx.createRadialGradient(cx, cy, 40, cx, cy, 260);
+        const grad = ctx.createRadialGradient(cx, cy, 30, cx, cy, isMobile ? 180 : 260);
         grad.addColorStop(0, 'rgba(234, 179, 8, 0.15)');
         grad.addColorStop(0.5, 'rgba(168, 85, 247, 0.08)');
         grad.addColorStop(1, 'transparent');
         ctx.fillStyle = grad;
         ctx.fillRect(cx - 260, cy - 260, 520, 520);
 
-        // Draw Thin Orbital Rings
-        const rings = [140, 220, 310, 420];
+        const rings = isMobile ? [90, 150, 220] : [140, 220, 310, 420];
         ctx.lineWidth = 1;
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
         for (const r of rings) {
@@ -359,7 +355,6 @@ const AtmosphericBackground = () => {
           ctx.stroke();
         }
 
-        // Draw Orbiting Celestial Dots
         for (let i = 0; i < entities.length; i++) {
           const e = entities[i];
           if (!prefersReducedMotion) {
@@ -390,14 +385,15 @@ const AtmosphericBackground = () => {
             if (e.y < -e.size) e.y = height + e.size;
             if (e.y > height + e.size) e.y = -e.size;
 
-            // Pointer Soft Shift
-            const dx = e.x - mx;
-            const dy = e.y - my;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 160 && dist > 0) {
-              const force = (160 - dist) / 160;
-              e.x += (dx / dist) * force * 1.5;
-              e.y += (dy / dist) * force * 1.5;
+            if (!isMobile) {
+              const dx = e.x - mx;
+              const dy = e.y - my;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < 160 && dist > 0) {
+                const force = (160 - dist) / 160;
+                e.x += (dx / dist) * force * 1.5;
+                e.y += (dy / dist) * force * 1.5;
+              }
             }
           }
 
@@ -428,15 +424,15 @@ const AtmosphericBackground = () => {
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 transition-opacity duration-700">
-      {/* LAYER 1: CSS RADIAL AMBIENT LIGHT FIELDS (Theme-Aware Atmosphere) */}
+      {/* CSS Ambient Light Glow Layers */}
       {theme === 'nebula' && (
         <>
           <div
-            className="absolute -top-32 -left-32 w-[600px] h-[600px] rounded-full blur-[140px] opacity-45 animate-pulse-atmosphere"
+            className="absolute -top-32 -left-32 w-[450px] sm:w-[600px] h-[450px] sm:h-[600px] rounded-full blur-[120px] sm:blur-[140px] opacity-40 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(circle, #6366F1 0%, rgba(139, 92, 246, 0.4) 60%, transparent 100%)' }}
           />
           <div
-            className="absolute top-1/3 -right-32 w-[650px] h-[650px] rounded-full blur-[160px] opacity-40 animate-pulse-atmosphere"
+            className="absolute top-1/3 -right-32 w-[450px] sm:w-[650px] h-[450px] sm:h-[650px] rounded-full blur-[130px] sm:blur-[160px] opacity-35 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(circle, #A855F7 0%, rgba(59, 130, 246, 0.3) 70%, transparent 100%)', animationDelay: '3s' }}
           />
         </>
@@ -445,11 +441,11 @@ const AtmosphericBackground = () => {
       {theme === 'cryon' && (
         <>
           <div
-            className="absolute -top-40 left-10 w-[700px] h-[550px] rounded-full blur-[150px] opacity-45 animate-pulse-atmosphere"
+            className="absolute -top-40 left-0 w-[500px] sm:w-[700px] h-[400px] sm:h-[550px] rounded-full blur-[120px] sm:blur-[150px] opacity-40 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(ellipse, #0284C7 0%, rgba(56, 189, 248, 0.35) 50%, transparent 100%)' }}
           />
           <div
-            className="absolute bottom-10 -right-32 w-[650px] h-[650px] rounded-full blur-[160px] opacity-35 animate-pulse-atmosphere"
+            className="absolute bottom-10 -right-32 w-[450px] sm:w-[650px] h-[450px] sm:h-[650px] rounded-full blur-[130px] sm:blur-[160px] opacity-30 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(ellipse, #0EA5E9 0%, rgba(224, 242, 254, 0.2) 60%, transparent 100%)', animationDelay: '4s' }}
           />
         </>
@@ -458,11 +454,11 @@ const AtmosphericBackground = () => {
       {theme === 'verdant' && (
         <>
           <div
-            className="absolute -top-32 -left-20 w-[600px] h-[600px] rounded-full blur-[150px] opacity-40 animate-pulse-atmosphere"
+            className="absolute -top-32 -left-20 w-[450px] sm:w-[600px] h-[450px] sm:h-[600px] rounded-full blur-[120px] sm:blur-[150px] opacity-35 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(circle, #059669 0%, rgba(16, 185, 129, 0.3) 60%, transparent 100%)' }}
           />
           <div
-            className="absolute top-1/2 -right-40 w-[650px] h-[650px] rounded-full blur-[170px] opacity-35 animate-pulse-atmosphere"
+            className="absolute top-1/2 -right-40 w-[450px] sm:w-[650px] h-[450px] sm:h-[650px] rounded-full blur-[140px] sm:blur-[170px] opacity-30 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(circle, #10B981 0%, rgba(245, 158, 11, 0.2) 60%, transparent 100%)', animationDelay: '3s' }}
           />
         </>
@@ -471,11 +467,11 @@ const AtmosphericBackground = () => {
       {theme === 'inferno' && (
         <>
           <div
-            className="absolute -top-32 right-10 w-[600px] h-[600px] rounded-full blur-[150px] opacity-40 animate-pulse-atmosphere"
+            className="absolute -top-32 right-0 w-[450px] sm:w-[600px] h-[450px] sm:h-[600px] rounded-full blur-[120px] sm:blur-[150px] opacity-35 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(circle, #DC2626 0%, rgba(249, 115, 22, 0.35) 60%, transparent 100%)' }}
           />
           <div
-            className="absolute bottom-0 -left-20 w-[700px] h-[500px] rounded-full blur-[160px] opacity-45 animate-pulse-atmosphere"
+            className="absolute bottom-0 -left-20 w-[500px] sm:w-[700px] h-[400px] sm:h-[500px] rounded-full blur-[130px] sm:blur-[160px] opacity-40 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(ellipse, #EA580C 0%, rgba(239, 68, 68, 0.25) 70%, transparent 100%)', animationDelay: '2s' }}
           />
         </>
@@ -484,7 +480,7 @@ const AtmosphericBackground = () => {
       {theme === 'eclipse' && (
         <>
           <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] rounded-full blur-[180px] opacity-25"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] sm:w-[750px] h-[550px] sm:h-[750px] rounded-full blur-[140px] sm:blur-[180px] opacity-25"
             style={{ background: 'radial-gradient(circle, #EAB308 0%, rgba(168, 85, 247, 0.2) 50%, transparent 80%)' }}
           />
         </>
@@ -493,17 +489,17 @@ const AtmosphericBackground = () => {
       {theme === 'ethereal' && (
         <>
           <div
-            className="absolute -top-40 -left-20 w-[700px] h-[600px] rounded-full blur-[160px] opacity-40 animate-pulse-atmosphere"
+            className="absolute -top-40 -left-20 w-[500px] sm:w-[700px] h-[450px] sm:h-[600px] rounded-full blur-[130px] sm:blur-[160px] opacity-35 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(ellipse, #9333EA 0%, rgba(232, 121, 249, 0.35) 55%, transparent 100%)' }}
           />
           <div
-            className="absolute top-1/3 -right-32 w-[600px] h-[600px] rounded-full blur-[150px] opacity-45 animate-pulse-atmosphere"
+            className="absolute top-1/3 -right-32 w-[450px] sm:w-[600px] h-[450px] sm:h-[600px] rounded-full blur-[120px] sm:blur-[150px] opacity-40 animate-pulse-atmosphere"
             style={{ background: 'radial-gradient(ellipse, #C084FC 0%, rgba(244, 114, 182, 0.3) 60%, transparent 100%)', animationDelay: '3s' }}
           />
         </>
       )}
 
-      {/* LAYER 2: HIGH-PERFORMANCE INTERACTIVE CANVAS */}
+      {/* High-Performance Canvas */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
     </div>
   );

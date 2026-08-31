@@ -92,6 +92,7 @@ body {
   background-color: var(--theme-bg-base);
   transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
+  width: 100%;
 }
 
 code, pre {
@@ -114,12 +115,49 @@ code, pre {
   background: rgba(140, 140, 150, 0.6);
 }
 
+/* Hide scrollbar cross-browser */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Glass Panels with theme border */
 .glass-panel {
   background: var(--theme-bg-surface);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--theme-border);
+}
+
+/* Responsive Slide & Fade Animations */
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Atmospheric Animations */

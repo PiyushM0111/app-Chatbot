@@ -485,6 +485,8 @@ function App() {
         onOpenProjects={() => setIsProjectsOpen(true)}
         onOpenImageGallery={() => setIsImageGalleryOpen(true)}
         onOpenLearning={() => setIsLearningOpen(true)}
+        onOpenMemory={() => setIsMemoryOpen(true)}
+        onOpenPromptLibrary={() => setIsPromptLibraryOpen(true)}
         currentLanguage={currentLanguage}
         currentMode={currentMode}
       />
