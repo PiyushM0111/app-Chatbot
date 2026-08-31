@@ -2,6 +2,7 @@
   "name": "ai-chatbot-app",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "server": "cd server && npm run dev",

@@ -4,7 +4,9 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const dbPath = path.resolve(__dirname, 'chatbot.db');
+
+const isServerless = !!(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.LAMBDA_TASK_ROOT);
+const dbPath = isServerless ? path.resolve('/tmp', 'chatbot.db') : path.resolve(__dirname, 'chatbot.db');
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {

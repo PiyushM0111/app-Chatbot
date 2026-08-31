@@ -27,22 +27,37 @@ await initDB();
 
 // Middleware
 app.use(cors({
-  origin: '*',
+  origin: true,
+  credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', cors());
+
+// URL normalization for standalone server, Netlify Functions, and reverse proxies
+app.use((req, res, next) => {
+  if (req.url.startsWith('/.netlify/functions/api')) {
+    let clean = req.url.replace(/^\/\.netlify\/functions\/api/, '');
+    if (!clean.startsWith('/api') && clean !== '') {
+      clean = `/api${clean}`;
+    }
+    req.url = clean || '/api/health';
+  }
+  next();
+});
 
 app.use(express.json({ limit: '10mb' }));
 app.use('/api', rateLimiter({ max: 150, windowMs: 60 * 1000 }));
 
-// Multi-Subsystem Health & Status Monitoring Endpoint (Section 51)
-app.get('/api/health', (req, res) => {
+// Multi-Subsystem Health & Status Monitoring Endpoint
+app.get(['/api/health', '/health'], (req, res) => {
   const isGemini = !!(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here' && process.env.GEMINI_API_KEY.length > 10);
 
   res.json({
+    success: true,
+    service: 'api',
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Nexus AI Personal Platform API',
     subsystems: {
       ai_provider: isGemini ? 'Google Gemini 1.5/2.0 (Active)' : 'Intelligent Local Knowledge Engine (Active)',
       image_studio: 'Operational (Structured Multimodal Engine)',
@@ -87,7 +102,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error. Please try again.' });
 });
 
-if (process.env.NODE_ENV !== 'production' || !process.env.NETLIFY) {
+const isDirectRun = process.argv[1] && (
+  process.argv[1].endsWith('server.js') || 
+  process.argv[1].endsWith('server\\server.js') ||
+  process.argv[1].endsWith('server/server.js')
+);
+
+if (isDirectRun && !process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
   app.listen(PORT, () => {
     console.log(`🚀 Nexus AI Platform Server running on http://localhost:${PORT}`);
   });
