@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 
 const AuthContext = createContext();
 
@@ -17,14 +18,14 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(getApiUrl('/api/auth/me'), {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
         if (res.ok) {
-          const data = await res.json();
+          const data = await parseJsonResponse(res);
           setUser(data.user);
         } else {
           // Token expired or invalid
@@ -43,15 +44,15 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(getApiUrl('/api/auth/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await res.json();
+    const data = await parseJsonResponse(res);
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to login');
+      throw new Error(data.error || data.message || 'Failed to login');
     }
 
     localStorage.setItem('chatbot_token', data.token);
@@ -61,15 +62,15 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signup = async (name, email, password) => {
-    const res = await fetch('/api/auth/signup', {
+    const res = await fetch(getApiUrl('/api/auth/signup'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
     });
 
-    const data = await res.json();
+    const data = await parseJsonResponse(res);
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to create account');
+      throw new Error(data.error || data.message || 'Failed to create account');
     }
 
     localStorage.setItem('chatbot_token', data.token);
@@ -79,14 +80,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   const loginGuest = async () => {
-    const res = await fetch('/api/auth/guest', {
+    const res = await fetch(getApiUrl('/api/auth/guest'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
 
-    const data = await res.json();
+    const data = await parseJsonResponse(res);
     if (!res.ok) {
-      throw new Error(data.error || 'Failed to initialize guest session');
+      throw new Error(data.error || data.message || 'Failed to initialize guest session');
     }
 
     localStorage.setItem('chatbot_token', data.token);
@@ -104,7 +105,7 @@ export const AuthProvider = ({ children }) => {
   const updatePreferences = async (newPrefs) => {
     if (!token) return;
     try {
-      const res = await fetch('/api/auth/preferences', {
+      const res = await fetch(getApiUrl('/api/auth/preferences'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -113,7 +114,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify(newPrefs)
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setUser(data.user);
       }
     } catch (err) {

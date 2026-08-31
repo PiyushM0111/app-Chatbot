@@ -3,6 +3,7 @@ import { Brain, Sparkles, CheckCircle2, XCircle, X, ArrowRight, RotateCcw, Troph
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 
 const LearningModal = ({ isOpen, onClose }) => {
   const { token } = useAuth();
@@ -20,11 +21,11 @@ const LearningModal = ({ isOpen, onClose }) => {
   const fetchTopics = async () => {
     if (!token) return;
     try {
-      const res = await fetch('/api/learning/topics', {
+      const res = await fetch(getApiUrl('/api/learning/topics'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setCurriculum(data.curriculum || {});
         setUserProgress(data.progress || []);
       }
@@ -46,7 +47,7 @@ const LearningModal = ({ isOpen, onClose }) => {
     setEvaluation(null);
     setUserAnswers({});
     try {
-      const res = await fetch('/api/learning/quiz', {
+      const res = await fetch(getApiUrl('/api/learning/quiz'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +56,7 @@ const LearningModal = ({ isOpen, onClose }) => {
         body: JSON.stringify({ topic })
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setQuiz(data.quiz);
       }
     } catch (e) {
@@ -77,7 +78,7 @@ const LearningModal = ({ isOpen, onClose }) => {
     const answersArray = quiz.questions.map((_, idx) => userAnswers[idx]);
     setLoading(true);
     try {
-      const res = await fetch('/api/learning/evaluate', {
+      const res = await fetch(getApiUrl('/api/learning/evaluate'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,11 +89,11 @@ const LearningModal = ({ isOpen, onClose }) => {
           answers: answersArray
         })
       });
+
       if (res.ok) {
-        const data = await res.json();
-        setEvaluation(data.evaluation);
+        const data = await parseJsonResponse(res);
+        setEvaluation(data.evaluation || data);
         fetchTopics();
-        showToast(`Quiz completed: ${data.evaluation.percentage}%!`, 'success');
       }
     } catch (e) {
       showToast('Failed to evaluate quiz.', 'error');

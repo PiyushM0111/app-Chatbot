@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Search, MessageSquare, Trash2, Edit2, Check, Plus, AlertCircle, Pin, Download, Clock, Calendar, BookmarkCheck, Sparkles } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { getApiUrl } from '../utils/apiClient';
 
 const ChatHistoryDrawer = ({
   isOpen,
@@ -76,7 +77,7 @@ const ChatHistoryDrawer = ({
     e.stopPropagation();
     try {
       const token = localStorage.getItem('chatbot_token');
-      const res = await fetch(`/api/conversations/${convId}/export?format=markdown`, {
+      const res = await fetch(getApiUrl(`/api/conversations/${convId}/export?format=markdown`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {

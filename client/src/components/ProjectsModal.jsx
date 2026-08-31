@@ -3,6 +3,7 @@ import { FolderGit2, Plus, X, Trash2, CheckCircle2, Circle, Layers, Code, Sparkl
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 
 const ProjectsModal = ({ isOpen, onClose, onStartProjectChat }) => {
   const { token } = useAuth();
@@ -20,11 +21,11 @@ const ProjectsModal = ({ isOpen, onClose, onStartProjectChat }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(getApiUrl('/api/projects'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setProjects(data.projects || []);
         if (data.projects && data.projects.length > 0 && !activeProject) {
           setActiveProject(data.projects[0]);
@@ -46,7 +47,7 @@ const ProjectsModal = ({ isOpen, onClose, onStartProjectChat }) => {
     if (!newProjectName.trim()) return;
 
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(getApiUrl('/api/projects'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,7 +60,7 @@ const ProjectsModal = ({ isOpen, onClose, onStartProjectChat }) => {
       });
 
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         showToast('Project created successfully!', 'success');
         setNewProjectName('');
         setNewProjectDesc('');
@@ -73,9 +74,8 @@ const ProjectsModal = ({ isOpen, onClose, onStartProjectChat }) => {
   };
 
   const handleDeleteProject = async (id) => {
-    if (!window.confirm('Delete this project?')) return;
     try {
-      const res = await fetch(`/api/projects/${id}`, {
+      const res = await fetch(getApiUrl(`/api/projects/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -99,7 +99,7 @@ const ProjectsModal = ({ isOpen, onClose, onStartProjectChat }) => {
     };
 
     try {
-      const res = await fetch(`/api/projects/${activeProject.id}`, {
+      const res = await fetch(getApiUrl(`/api/projects/${activeProject.id}`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

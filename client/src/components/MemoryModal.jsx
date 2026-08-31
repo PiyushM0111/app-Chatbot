@@ -3,6 +3,7 @@ import { Sparkles, Trash2, Plus, X, Search, Check, Brain } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 
 const MemoryModal = ({ isOpen, onClose }) => {
   const { token } = useAuth();
@@ -18,11 +19,11 @@ const MemoryModal = ({ isOpen, onClose }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/memory', {
+      const res = await fetch(getApiUrl('/api/memory'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setMemories(data.memories || []);
       }
     } catch (err) {
@@ -41,7 +42,7 @@ const MemoryModal = ({ isOpen, onClose }) => {
     if (!newFact.trim()) return;
 
     try {
-      const res = await fetch('/api/memory', {
+      const res = await fetch(getApiUrl('/api/memory'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +63,7 @@ const MemoryModal = ({ isOpen, onClose }) => {
 
   const handleDeleteMemory = async (id) => {
     try {
-      const res = await fetch(`/api/memory/${id}`, {
+      const res = await fetch(getApiUrl(`/api/memory/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -79,7 +80,7 @@ const MemoryModal = ({ isOpen, onClose }) => {
 
   const handleClearAll = async () => {
     try {
-      const res = await fetch('/api/memory', {
+      const res = await fetch(getApiUrl('/api/memory'), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

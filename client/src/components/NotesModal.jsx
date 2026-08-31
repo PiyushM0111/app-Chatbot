@@ -3,6 +3,7 @@ import { StickyNote, Plus, Trash2, Copy, Check, X, Search, Tag, ExternalLink } f
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 
 const DEFAULT_TAGS = ['All', 'Code', 'Architecture', 'Security', 'Learning', 'Ideas'];
 
@@ -25,11 +26,11 @@ const NotesModal = ({ isOpen, onClose, onInsertNoteToChat }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/notes', {
+      const res = await fetch(getApiUrl('/api/notes'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setNotes(data.notes || []);
       }
     } catch (err) {
@@ -48,7 +49,7 @@ const NotesModal = ({ isOpen, onClose, onInsertNoteToChat }) => {
     if (!newContent.trim()) return;
 
     try {
-      const res = await fetch('/api/notes', {
+      const res = await fetch(getApiUrl('/api/notes'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -75,7 +76,7 @@ const NotesModal = ({ isOpen, onClose, onInsertNoteToChat }) => {
 
   const handleDeleteNote = async (id) => {
     try {
-      const res = await fetch(`/api/notes/${id}`, {
+      const res = await fetch(getApiUrl(`/api/notes/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

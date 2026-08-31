@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
 import GeneratedImageCard from './GeneratedImageCard';
+import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 
 const MessageItem = ({
   message,
@@ -96,7 +97,7 @@ const MessageItem = ({
       return;
     }
     try {
-      const res = await fetch('/api/notes', {
+      const res = await fetch(getApiUrl('/api/notes'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import { Image, Sparkles, X, Download, Trash2, Maximize2, RefreshCw } from 'luci
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';
+import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 
 const ASPECT_RATIOS = [
   { id: '1:1', label: 'Square (1:1)' },
@@ -37,11 +38,11 @@ const ImageGalleryModal = ({ isOpen, onClose, onInsertImagePrompt }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/images', {
+      const res = await fetch(getApiUrl('/api/images'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setImages(data.images || []);
       }
     } catch (e) {
@@ -61,7 +62,7 @@ const ImageGalleryModal = ({ isOpen, onClose, onInsertImagePrompt }) => {
 
     setGenerating(true);
     try {
-      const res = await fetch('/api/images/generate', {
+      const res = await fetch(getApiUrl('/api/images/generate'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +74,7 @@ const ImageGalleryModal = ({ isOpen, onClose, onInsertImagePrompt }) => {
       });
 
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setImages(prev => [data.image, ...prev]);
         showToast('Image generated successfully!', 'success');
         setPrompt('');
@@ -87,7 +88,7 @@ const ImageGalleryModal = ({ isOpen, onClose, onInsertImagePrompt }) => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`/api/images/${id}`, {
+      const res = await fetch(getApiUrl(`/api/images/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

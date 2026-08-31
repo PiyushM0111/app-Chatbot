@@ -15,24 +15,24 @@ const generateToken = (userId) => {
 // POST /api/auth/signup
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = req.body || {};
 
     if (!name || !email || !password) {
-      return res.status(400).json({ error: 'Name, email, and password are required.' });
+      return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
     }
 
     const emailClean = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailClean)) {
-      return res.status(400).json({ error: 'Please provide a valid email address.' });
+      return res.status(400).json({ success: false, error: 'Please provide a valid email address.' });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+      return res.status(400).json({ success: false, error: 'Password must be at least 6 characters.' });
     }
 
     const existingUser = await get('SELECT id FROM users WHERE email = ?', [emailClean]);
     if (existingUser) {
-      return res.status(400).json({ error: 'An account with this email already exists.' });
+      return res.status(400).json({ success: false, error: 'An account with this email already exists.' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -55,13 +55,14 @@ router.post('/signup', async (req, res) => {
     };
 
     res.status(201).json({
+      success: true,
       message: 'Account created successfully',
       user,
       token
     });
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(500).json({ error: 'Failed to create account. Please try again.' });
+    res.status(500).json({ success: false, error: 'Failed to create account. Please try again.' });
   }
 });
 
@@ -74,27 +75,28 @@ router.post('/register', (req, res, next) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body || {};
 
     if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required.' });
+      return res.status(400).json({ success: false, error: 'Email and password are required.' });
     }
 
     const emailClean = email.trim().toLowerCase();
     const user = await get('SELECT * FROM users WHERE email = ?', [emailClean]);
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ success: false, error: 'Invalid email or password.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ success: false, error: 'Invalid email or password.' });
     }
 
     const token = generateToken(user.id);
 
     res.json({
+      success: true,
       message: 'Login successful',
       user: {
         id: user.id,
@@ -107,7 +109,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Failed to log in. Please try again.' });
+    res.status(500).json({ success: false, error: 'Failed to log in. Please try again.' });
   }
 });
 
@@ -129,6 +131,7 @@ router.post('/guest', async (req, res) => {
 
     const token = generateToken(guestId);
     res.json({
+      success: true,
       message: 'Guest session initialized',
       user: {
         id: guestId,
@@ -141,19 +144,19 @@ router.post('/guest', async (req, res) => {
     });
   } catch (error) {
     console.error('Guest creation error:', error);
-    res.status(500).json({ error: 'Failed to create guest session.' });
+    res.status(500).json({ success: false, error: 'Failed to create guest session.' });
   }
 });
 
 // GET /api/auth/me
 router.get('/me', authenticateToken, async (req, res) => {
-  res.json({ user: req.user });
+  res.json({ success: true, user: req.user });
 });
 
 // PUT /api/auth/preferences
 router.put('/preferences', authenticateToken, async (req, res) => {
   try {
-    const { theme_preference, accent_color } = req.body;
+    const { theme_preference, accent_color } = req.body || {};
     const updates = [];
     const params = [];
 
@@ -176,10 +179,10 @@ router.put('/preferences', authenticateToken, async (req, res) => {
       [req.user.id]
     );
 
-    res.json({ message: 'Preferences updated', user: updatedUser });
+    res.json({ success: true, message: 'Preferences updated', user: updatedUser });
   } catch (error) {
     console.error('Preferences update error:', error);
-    res.status(500).json({ error: 'Failed to update preferences.' });
+    res.status(500).json({ success: false, error: 'Failed to update preferences.' });
   }
 });
 

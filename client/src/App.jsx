@@ -26,6 +26,7 @@ import ThemeStudioModal from './components/ThemeStudioModal';
 import SearchInChatModal from './components/SearchInChatModal';
 import ReadingModeModal from './components/ReadingModeModal';
 import CodeDiffModal from './components/CodeDiffModal';
+import { getApiUrl, parseJsonResponse } from './utils/apiClient';
 import { WifiOff, Maximize2, Minimize2, Search } from 'lucide-react';
 
 function App() {
@@ -149,11 +150,11 @@ function App() {
     }
 
     try {
-      const res = await fetch('/api/conversations', {
+      const res = await fetch(getApiUrl('/api/conversations'), {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        const data = await res.json();
+        const data = await parseJsonResponse(res);
         setConversations(data.conversations || []);
       }
     } catch (err) {
@@ -173,12 +174,12 @@ function App() {
       setError(null);
 
       try {
-        const res = await fetch(`/api/conversations/${id}`, {
+        const res = await fetch(getApiUrl(`/api/conversations/${id}`), {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         if (res.ok) {
-          const data = await res.json();
+          const data = await parseJsonResponse(res);
           setCurrentConversationId(id);
           setMessages(
             (data.messages || []).map((m) => ({
@@ -317,7 +318,7 @@ function App() {
 
       let targetConvId = currentConversationId;
       if (!targetConvId) {
-        const createConvRes = await fetch('/api/conversations', {
+        const createConvRes = await fetch(getApiUrl('/api/conversations'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -331,13 +332,13 @@ function App() {
           })
         });
 
-        if (!createConvRes.ok) throw new Error('Failed to create conversation session');
-        const convData = await createConvRes.json();
+        const convData = await parseJsonResponse(createConvRes);
+        if (!createConvRes.ok) throw new Error(convData.error || 'Failed to create conversation session');
         targetConvId = convData.conversation.id;
         setCurrentConversationId(targetConvId);
       }
 
-      const response = await fetch(`/api/conversations/${targetConvId}/messages`, {
+      const response = await fetch(getApiUrl(`/api/conversations/${targetConvId}/messages`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -356,8 +357,8 @@ function App() {
       });
 
       if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Failed to send message');
+        const errData = await parseJsonResponse(response).catch(() => ({}));
+        throw new Error(errData.error || errData.message || 'Failed to send message');
       }
 
       const reader = response.body.getReader();
@@ -368,31 +369,41 @@ function App() {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunkStr = decoder.decode(value, { stream: true });
-        const lines = chunkStr.split('\n');
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             try {
-              const data = JSON.parse(line.replace('data: ', '').trim());
+              const data = JSON.parse(line.slice(6));
+
               if (data.chunk) {
                 streamedText += data.chunk;
                 setMessages((prev) =>
                   prev.map((msg) =>
-                    msg.id === tempAiMsgId ? { ...msg, content: streamedText } : msg
+                    msg.id === tempAiMessageId ? { ...msg, content: streamedText } : msg
                   )
                 );
-              } else if (data.done) {
+              }
+
+              if (data.done) {
                 setMessages((prev) =>
-                  prev.map((msg) => {
-                    if (msg.id === tempUserMsgId && data.userMessage) return data.userMessage;
-                    if (msg.id === tempAiMsgId && data.aiMessage) return data.aiMessage;
-                    return msg;
-                  })
+                  prev.map((msg) =>
+                    msg.id === tempAiMessageId
+                      ? {
+                          ...data.aiMessage,
+                          content: data.aiMessage?.content || streamedText,
+                          attachments: data.aiMessage?.attachments || []
+                        }
+                      : msg
+                  )
                 );
+
                 if (data.conversationTitle) {
                   setConversations((prev) =>
-                    prev.map((c) => (c.id === targetConvId ? { ...c, title: data.conversationTitle } : c))
+                    prev.map((c) =>
+                      c.id === targetConvId ? { ...c, title: data.conversationTitle } : c
+                    )
                   );
                 }
               }
@@ -400,26 +411,24 @@ function App() {
           }
         }
       }
-
-      playSound('receive');
-      fetchConversations();
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Send message error:', err);
-        setError(err.message || 'Failed to send message');
-        showToast(err.message || 'Error communicating with AI', 'error');
-        playSound('error');
+      if (err.name === 'AbortError') {
+        showToast('Generation cancelled', 'info');
+      } else {
+        console.error('Chat error:', err);
+        setError(err.message);
+        showToast(err.message || 'Failed to send message', 'error');
       }
     } finally {
       setIsLoading(false);
+      setGenerationStatus('Thinking...');
       abortControllerRef.current = null;
     }
   };
 
-  // Regenerate last response
+  // Regenerate last AI response with streaming
   const handleRegenerate = async () => {
-    if (!currentConversationId || isLoading || isRegenerating) return;
-    if (!token) return;
+    if (!token || !currentConversationId || isLoading || isRegenerating) return;
 
     setIsRegenerating(true);
     setError(null);
@@ -428,7 +437,7 @@ function App() {
     try {
       abortControllerRef.current = new AbortController();
 
-      const response = await fetch(`/api/conversations/${currentConversationId}/regenerate`, {
+      const response = await fetch(getApiUrl(`/api/conversations/${currentConversationId}/regenerate`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -441,7 +450,10 @@ function App() {
         signal: abortControllerRef.current.signal
       });
 
-      if (!response.ok) throw new Error('Failed to regenerate response');
+      if (!response.ok) {
+        const errData = await parseJsonResponse(response).catch(() => ({}));
+        throw new Error(errData.error || errData.message || 'Failed to regenerate response');
+      }
 
       const tempAiMsgId = `temp-regen-${Date.now()}`;
       setMessages((prev) => {
@@ -522,7 +534,7 @@ function App() {
   const handleDeleteConversation = async (id) => {
     if (!token) return;
     try {
-      const res = await fetch(`/api/conversations/${id}`, {
+      const res = await fetch(getApiUrl(`/api/conversations/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -542,7 +554,7 @@ function App() {
   const handleRenameConversation = async (id, newTitle) => {
     if (!token) return;
     try {
-      const res = await fetch(`/api/conversations/${id}`, {
+      const res = await fetch(getApiUrl(`/api/conversations/${id}`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -563,7 +575,7 @@ function App() {
   const handleTogglePinConversation = async (id, isPinned) => {
     if (!token) return;
     try {
-      const res = await fetch(`/api/conversations/${id}`, {
+      const res = await fetch(getApiUrl(`/api/conversations/${id}`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -584,7 +596,7 @@ function App() {
   const handleClearAllConversations = async () => {
     if (!token) return;
     try {
-      const res = await fetch('/api/conversations', {
+      const res = await fetch(getApiUrl('/api/conversations'), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
