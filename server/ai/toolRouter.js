@@ -40,20 +40,27 @@ export const routeAndExecuteTool = async (intentData, userId, conversationId, us
       console.error('Error saving generated image record:', e);
     }
 
+    const imageId = `img-${Date.now()}-${randomUUID().slice(0, 6)}`;
+
     return {
       handled: true,
       resultText: imgData.formattedResponse,
       responseType: 'image',
       imageAttachment: {
+        id: imageId,
+        generationId: imgData.generationId,
         type: 'image',
         url: imgData.imageUrl,
         alt: `Generated image of ${imgData.subject}`,
         subject: imgData.subject,
         prompt: imgData.prompt,
+        mimeType: imgData.mimeType || 'image/png',
         aspectRatio: imgData.parameters?.aspectRatio || '1:1',
         style: imgData.parameters?.style,
         lighting: imgData.parameters?.lighting,
-        parameters: imgData.parameters
+        parameters: imgData.parameters,
+        status: 'completed',
+        created_at: new Date().toISOString()
       }
     };
   }

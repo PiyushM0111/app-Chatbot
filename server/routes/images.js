@@ -44,10 +44,12 @@ router.post('/generate', async (req, res) => {
     res.status(201).json({
       image: {
         id,
+        generationId: generated.generationId,
         user_id: req.user.id,
         conversation_id: conversationId,
         prompt: generated.prompt,
         image_url: generated.imageUrl,
+        mimeType: generated.mimeType || 'image/png',
         parameters: generated.parameters,
         formattedResponse: generated.formattedResponse
       }

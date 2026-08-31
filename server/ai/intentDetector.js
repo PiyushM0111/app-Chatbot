@@ -8,8 +8,12 @@ const IMAGE_GEN_PATTERNS = [
   // 2. Direct visual action verbs at start ("draw a...", "paint an...", "render a...", "visualize a...")
   /^(?:draw|paint|render|visualize|sketch|illustrate)\s+(?:an?|the)?\s*[\w\s]+/i,
 
-  // 3. English creation patterns ("generate an image", "create a picture", "make a photo", etc.)
-  /\b(?:generate|create|make|draw|paint|render|visualize|produce)\s+(?:an?|the)?\s*(?:image|picture|photo|photograph|scene|artwork|art|render|illustration|visual|graphic|wallpaper|portrait|concept art)\b/i,
+  // 3. English creation patterns ("generate an image", "create a picture", "make a photo", "create a 16:9 futuristic city", "create a vertical 9:16 poster", "create a square profile illustration", etc.)
+  /\b(?:generate|create|make|draw|paint|render|visualize|produce)\s+(?:an?|the)?\s*(?:[\d:]+|square|vertical|horizontal|portrait|landscape|realistic|cinematic|cartoon|vector|anime|3d|photorealistic|digital|minimalist|isometric)?\s*(?:[\d:]+|square|vertical|horizontal|portrait|landscape|profile)?\s*(?:image|picture|photo|photograph|scene|artwork|art|render|illustration|visual|graphic|wallpaper|portrait|concept art|poster|landscape|city|cat|drawing)\b/i,
+
+  // 3b. Direct artistic creation requests with style/dimensions ("create a cartoon cat", "generate a realistic mountain landscape", "render a 3d robot", "create a 16:9 futuristic city")
+  /\b(?:generate|create|make|render|draw|paint|sketch|illustrate)\s+(?:an?|the)?\s*(?:[\d:]+|vertical|horizontal|square)?\s*(?:[\d:]+)?\s*(?:cartoon|3d|photorealistic|cinematic|realistic|vector|anime|digital|pixel\s*art|minimalist|isometric)\s+[\w\s]+/i,
+  /\b(?:generate|create|make|render|draw|paint)\s+(?:an?|the)?\s*(?:16:9|9:16|4:3|3:4|1:1|3:2)\s+[\w\s]+/i,
 
   // 4. "in which / of / showing" patterns ("generate a image in which a boy...", "create an image showing...")
   /\b(?:generate|create|make|render|draw)\s+(?:an?|the)?\s*(?:image|picture|photo|scene)\s+(?:in\s+which|of|showing|depicting|with|where)\b/i,
@@ -50,6 +54,14 @@ export const classifyIntent = (input) => {
   if (!input) return { intent: 'chat', entities: {} };
   const clean = input.trim();
   const lower = clean.toLowerCase();
+
+  // Exclude informational/educational questions about image generation (Requirement 2 & 4)
+  if (
+    /^(?:what is|what are|explain|tell me about|how does|how to|describe how|define|can you explain)\s+.*(?:image generation|image model|generating images|diffusion model|gan|text to image|midjourney|dall-e|stable diffusion)\b/i.test(clean) ||
+    /^(?:what is|what are|define)\s+(?:an?\s+)?image\b/i.test(clean)
+  ) {
+    return { intent: 'chat', entities: {} };
+  }
 
   // =========================================================================
   // 1. HIGHEST PRIORITY: Image Generation & Editing Requests

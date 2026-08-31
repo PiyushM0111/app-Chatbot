@@ -74,6 +74,15 @@ const runCompleteAISuite = async () => {
     { input: 'turn this into an image of floating islands', expected: 'image_generation' },
     { input: 'picture of a robotic artificial hand', expected: 'image_generation' },
     { input: '/image a golden retriever running in autumn', expected: 'image_generation' },
+    { input: 'Generate a realistic mountain landscape.', expected: 'image_generation' },
+    { input: 'Create a cartoon cat.', expected: 'image_generation' },
+    { input: 'Create a 16:9 futuristic city.', expected: 'image_generation' },
+    { input: 'Create a vertical 9:16 poster.', expected: 'image_generation' },
+    { input: 'Create a square profile illustration.', expected: 'image_generation' },
+    { input: 'Generate an image with no text.', expected: 'image_generation' },
+    { input: 'Generate an image containing the text Nexus AI.', expected: 'image_generation' },
+    { input: 'what is image generation?', expected: 'chat' },
+    { input: 'explain how image generators work', expected: 'chat' },
 
     // Image Generation (Hinglish & Hindi)
     { input: 'ek image bana student ki jo computer pe coding kar raha hai', expected: 'image_generation' },
@@ -202,6 +211,49 @@ const runCompleteAISuite = async () => {
     assert(
       imgPyRes.status === 200 && (imgPyRes.data.aiMessage.content.includes('Generated Image') || imgPyRes.data.aiMessage.attachments?.length > 0),
       'Topic Collision C: "Create an image of a Python programmer" → Image Generation (NOT code)'
+    );
+
+    // 5b. Aspect Ratio & Subject Preservation Verification Tests
+    const img169Res = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Create a 16:9 futuristic city.'
+    }, token);
+    const img169Att = img169Res.data.aiMessage.attachments?.[0];
+    assert(
+      img169Res.status === 200 && img169Att && img169Att.aspectRatio === '16:9',
+      'Image Format: "Create a 16:9 futuristic city" → 16:9 landscape aspect ratio'
+    );
+
+    const img916Res = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Create a vertical 9:16 poster of a galaxy.'
+    }, token);
+    const img916Att = img916Res.data.aiMessage.attachments?.[0];
+    assert(
+      img916Res.status === 200 && img916Att && img916Att.aspectRatio === '9:16',
+      'Image Format: "Create a vertical 9:16 poster" → 9:16 vertical portrait aspect ratio'
+    );
+
+    const imgCatRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: 'Create a cartoon cat.'
+    }, token);
+    assert(
+      imgCatRes.status === 200 && imgCatRes.data.aiMessage.attachments?.length > 0,
+      'Image Style: "Create a cartoon cat" → Image Studio with cartoon style'
+    );
+
+    // CRITICAL FINAL TEST: Full cinematic prompt
+    const finalImagePrompt = 'Generate a cinematic image of a boy sitting in front of a computer learning cybersecurity at night, realistic lighting, modern room, blue monitor glow.';
+    const finalImgRes = await request(`/api/conversations/${convId}/messages`, 'POST', {
+      content: finalImagePrompt
+    }, token);
+    const finalImgMsg = finalImgRes.data.aiMessage;
+    const finalImgAtt = finalImgMsg.attachments?.[0];
+    assert(
+      finalImgRes.status === 200 &&
+      finalImgAtt &&
+      finalImgAtt.url &&
+      !finalImgMsg.content.includes('Understanding Generate an image') &&
+      !finalImgMsg.content.includes('Visual Parameters:'),
+      'CRITICAL FINAL TEST: Full prompt routes directly to image result without text article or metadata clutter'
     );
 
     const codePyRes = await request(`/api/conversations/${convId}/messages`, 'POST', {

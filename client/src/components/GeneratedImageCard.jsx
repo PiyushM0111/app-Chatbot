@@ -39,6 +39,7 @@ const GeneratedImageCard = ({
     if (!imageUrl) return;
 
     setIsDownloading(true);
+    const ext = attachment.mimeType === 'image/jpeg' ? 'jpg' : attachment.mimeType === 'image/webp' ? 'webp' : 'png';
     try {
       const response = await fetch(imageUrl, { mode: 'cors' });
       if (!response.ok) throw new Error('Network response was not ok');
@@ -46,7 +47,7 @@ const GeneratedImageCard = ({
       const blobUrl = URL.createObjectURL(blob);
 
       const cleanSlug = subject.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
-      const filename = `nexus-ai-${cleanSlug || 'image'}-${Date.now()}.png`;
+      const filename = `nexus-ai-${cleanSlug || 'image'}-${Date.now()}.${ext}`;
 
       const link = document.createElement('a');
       link.href = blobUrl;
@@ -62,7 +63,7 @@ const GeneratedImageCard = ({
       const link = document.createElement('a');
       link.href = imageUrl;
       link.target = '_blank';
-      link.download = `nexus-ai-${Date.now()}.png`;
+      link.download = `nexus-ai-${Date.now()}.${ext}`;
       link.click();
       showToast('Opening image download...', 'info');
     } finally {
@@ -249,6 +250,12 @@ const GeneratedImageCard = ({
       {/* Collapsible Technical Details (Hidden by Default) */}
       {showDetails && (
         <div className="px-3.5 py-3 bg-zinc-950 border-t border-white/10 text-[11px] text-zinc-400 space-y-1.5 animate-fadeIn">
+          {attachment.generationId && (
+            <div className="flex justify-between">
+              <span className="text-zinc-500">ID:</span>
+              <span className="text-zinc-400 font-mono text-[10px]">{attachment.generationId}</span>
+            </div>
+          )}
           <div className="flex justify-between">
             <span className="text-zinc-500">Style:</span>
             <span className="text-zinc-300 font-medium">{attachment.style || parameters.style || 'Photorealistic'}</span>
@@ -261,6 +268,12 @@ const GeneratedImageCard = ({
             <span className="text-zinc-500">Aspect Ratio:</span>
             <span className="text-zinc-300 font-medium">{aspectRatio}</span>
           </div>
+          {parameters.resolution && (
+            <div className="flex justify-between">
+              <span className="text-zinc-500">Resolution:</span>
+              <span className="text-zinc-300 font-medium">{parameters.resolution}</span>
+            </div>
+          )}
           {attachment.prompt && (
             <div className="pt-1 border-t border-zinc-800/80">
               <span className="text-zinc-500 block mb-0.5">Prompt:</span>
