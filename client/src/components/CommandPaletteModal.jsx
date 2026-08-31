@@ -14,6 +14,8 @@ const CommandPaletteModal = ({
   onOpenThemeStudio,
   onOpenPromptLibrary,
   onOpenSettings,
+  onToggleFocusMode,
+  onOpenSearchInChat,
   conversations = [],
   onSelectConversation
 }) => {
@@ -28,7 +30,9 @@ const CommandPaletteModal = ({
 
   const ACTIONS = [
     { id: 'new_chat', title: 'Start a Fresh New Chat', category: 'Chat', icon: Plus, action: () => { onNewChat(); onClose(); } },
+    { id: 'search_chat', title: 'Find / Search in Conversation (Ctrl+F)', category: 'Chat', icon: Search, action: () => { onOpenSearchInChat && onOpenSearchInChat(); onClose(); } },
     { id: 'theme_studio', title: 'Open Theme Studio & Visual Atmospheres', category: 'Design', icon: Palette, action: () => { onOpenThemeStudio && onOpenThemeStudio(); onClose(); } },
+    { id: 'focus_mode', title: 'Toggle Focus Mode Workspace', category: 'View', icon: Sparkles, action: () => { onToggleFocusMode && onToggleFocusMode(); onClose(); } },
     { id: 'notes', title: 'Open AI Notes & Code Snippets', category: 'Notes', icon: StickyNote, action: () => { onOpenNotes(); onClose(); } },
     { id: 'projects', title: 'Open Software Projects Workspace', category: 'Workspace', icon: FolderGit2, action: () => { onOpenProjects(); onClose(); } },
     { id: 'images', title: 'Open AI Image Studio & Gallery', category: 'Studio', icon: Image, action: () => { onOpenImageGallery(); onClose(); } },

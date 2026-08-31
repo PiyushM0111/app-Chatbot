@@ -633,6 +633,7 @@ function App() {
             onOpenLearning={() => setIsLearningOpen(true)}
             onOpenMemory={() => setIsMemoryOpen(true)}
             onOpenPromptLibrary={() => setIsPromptLibraryOpen(true)}
+            onOpenSearchInChat={() => setIsSearchInChatOpen(true)}
             currentLanguage={currentLanguage}
             currentMode={currentMode}
           />

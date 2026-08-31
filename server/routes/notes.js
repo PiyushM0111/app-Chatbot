@@ -98,9 +98,11 @@ router.patch('/:id', async (req, res) => {
     console.error('Error updating note:', err);
     res.status(500).json({ error: 'Failed to update note.' });
   }
+// PUT /api/notes/:id (Alias for PATCH)
+router.put('/:id', async (req, res, next) => {
+  req.method = 'PATCH';
+  router.handle(req, res, next);
 });
-
-// DELETE /api/notes/:id - Delete a note
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;

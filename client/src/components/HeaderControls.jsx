@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Plus, History, Sparkles, Globe, Palette, StickyNote, Sliders, Menu } from 'lucide-react';
+import { User, Plus, History, Sparkles, Globe, Palette, StickyNote, Sliders, Menu, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import MobileNavDrawer from './MobileNavDrawer';
@@ -18,6 +18,7 @@ const HeaderControls = ({
   onOpenLearning,
   onOpenMemory,
   onOpenPromptLibrary,
+  onOpenSearchInChat,
   currentLanguage = 'en',
   currentMode = 'general'
 }) => {
@@ -95,6 +96,17 @@ const HeaderControls = ({
             >
               <StickyNote className="w-4 h-4 stroke-[2.2]" />
             </button>
+
+            {/* In-Chat Search Button */}
+            {onOpenSearchInChat && (
+              <button
+                onClick={onOpenSearchInChat}
+                title="Find in Conversation (Ctrl+F)"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800/80 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-all active:scale-95 shadow-sm border border-zinc-200/60 dark:border-zinc-700/60"
+              >
+                <Search className="w-4 h-4 stroke-[2.2]" />
+              </button>
+            )}
           </div>
         </div>
 

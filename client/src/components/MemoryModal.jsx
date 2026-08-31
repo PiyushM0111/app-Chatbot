@@ -75,8 +75,9 @@ const MemoryModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const [showConfirmClear, setShowConfirmClear] = useState(false);
+
   const handleClearAll = async () => {
-    if (!window.confirm('Are you sure you want to clear all stored memories?')) return;
     try {
       const res = await fetch('/api/memory', {
         method: 'DELETE',
@@ -84,6 +85,7 @@ const MemoryModal = ({ isOpen, onClose }) => {
       });
       if (res.ok) {
         setMemories([]);
+        setShowConfirmClear(false);
         showToast('All memories cleared.', 'info');
       }
     } catch (err) {
@@ -188,12 +190,33 @@ const MemoryModal = ({ isOpen, onClose }) => {
         {memories.length > 0 && (
           <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex justify-between items-center flex-shrink-0">
             <span className="text-xs text-zinc-400">{memories.length} memories stored</span>
-            <button
-              onClick={handleClearAll}
-              className="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors"
-            >
-              Clear All
-            </button>
+            {showConfirmClear ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-red-500 font-semibold">Clear all?</span>
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold"
+                >
+                  Yes, Clear
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmClear(false)}
+                  className="px-2.5 py-1 bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg text-xs font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowConfirmClear(true)}
+                className="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors"
+              >
+                Clear All
+              </button>
+            )}
           </div>
         )}
       </div>
