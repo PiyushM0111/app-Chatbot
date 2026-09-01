@@ -387,7 +387,7 @@ function App() {
                 streamedText += data.chunk;
                 setMessages((prev) =>
                   prev.map((msg) =>
-                    msg.id === tempAiMessageId ? { ...msg, content: streamedText } : msg
+                    msg.id === tempAiMsgId ? { ...msg, content: streamedText } : msg
                   )
                 );
               }
@@ -395,7 +395,7 @@ function App() {
               if (data.done) {
                 setMessages((prev) =>
                   prev.map((msg) =>
-                    msg.id === tempAiMessageId
+                    msg.id === tempAiMsgId
                       ? {
                           ...data.aiMessage,
                           content: data.aiMessage?.content || streamedText,
@@ -417,13 +417,25 @@ function App() {
           }
         }
       }
+
+      playSound('receive');
     } catch (err) {
+      // Remove empty placeholder on failure so no blank bubble appears
+      setMessages((prev) => prev.filter((msg) => msg.id !== tempAiMsgId && msg.id !== tempUserMsgId || msg.id === tempUserMsgId));
+      setInputMessage(text);
+
       if (err.name === 'AbortError') {
         showToast('Generation cancelled', 'info');
       } else {
         console.error('Chat error:', err);
-        setError(err.message);
-        showToast(err.message || 'Failed to send message', 'error');
+        const errMsg = err.message || 'Failed to send message';
+        setError(errMsg);
+        if (errMsg.includes('expired') || errMsg.includes('user not found') || errMsg.includes('token')) {
+          showToast('Your session has expired. Please log in again.', 'error');
+          setIsAuthOpen(true);
+        } else {
+          showToast(errMsg, 'error');
+        }
       }
     } finally {
       setIsLoading(false);

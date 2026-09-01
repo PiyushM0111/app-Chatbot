@@ -1,5 +1,6 @@
 import sqlite3 from 'sqlite3';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const getDirname = () => {
@@ -14,7 +15,24 @@ const getDirname = () => {
 const __dirname = getDirname();
 
 const isServerless = !!(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.LAMBDA_TASK_ROOT);
-const dbPath = isServerless ? path.resolve('/tmp', 'chatbot.db') : path.resolve(__dirname, 'chatbot.db');
+
+const getCanonicalDbPath = () => {
+  if (process.env.DATABASE_PATH) return path.resolve(process.env.DATABASE_PATH);
+  if (isServerless) return path.resolve('/tmp', 'chatbot.db');
+
+  const cwd = process.cwd();
+  if (cwd.endsWith('server') || cwd.endsWith('server\\') || cwd.endsWith('server/')) {
+    return path.resolve(cwd, 'chatbot.db');
+  }
+  return path.resolve(cwd, 'server', 'chatbot.db');
+};
+
+const dbPath = getCanonicalDbPath();
+
+try {
+  const dir = path.dirname(dbPath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+} catch (e) {}
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
