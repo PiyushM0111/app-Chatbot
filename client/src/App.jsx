@@ -30,7 +30,7 @@ import { getApiUrl, parseJsonResponse } from './utils/apiClient';
 import { WifiOff, Maximize2, Minimize2, Search } from 'lucide-react';
 
 function App() {
-  const { user, token } = useAuth();
+  const { user, token, loading } = useAuth();
   const { theme, accentColor } = useTheme();
   const { showToast, playSound } = useToast();
 
@@ -156,11 +156,14 @@ function App() {
       if (res.ok) {
         const data = await parseJsonResponse(res);
         setConversations(data.conversations || []);
+      } else if (res.status === 401) {
+        showToast('Your session has expired. Please log in again.', 'error');
+        setIsAuthOpen(true);
       }
     } catch (err) {
       console.error('Error fetching conversations:', err);
     }
-  }, [token]);
+  }, [token, showToast]);
 
   useEffect(() => {
     fetchConversations();
@@ -192,6 +195,9 @@ function App() {
             setCurrentMode(data.conversation.mode || 'general');
             setSystemPrompt(data.conversation.system_prompt || '');
           }
+        } else if (res.status === 401) {
+          showToast('Your session has expired. Please log in again.', 'error');
+          setIsAuthOpen(true);
         }
       } catch (err) {
         console.error('Error loading conversation:', err);
@@ -613,6 +619,27 @@ function App() {
   // Compute conversation token usage estimate
   const contextLength = messages.reduce((acc, m) => acc + (m.content || '').length, 0);
   const contextPercent = Math.min(100, Math.round((contextLength / 16000) * 100));
+
+  // Startup session verification screen (Prevents initial flash & session loop)
+  if (loading && token && !user) {
+    return (
+      <div className="relative w-full h-screen overflow-hidden flex flex-col items-center justify-center bg-[#0c0d12] text-zinc-100 font-sans select-none">
+        <AtmosphericBackground />
+        <div className="relative z-10 flex flex-col items-center gap-3.5 p-6 rounded-3xl bg-zinc-900/80 backdrop-blur-xl border border-white/10 shadow-2xl animate-scaleUp">
+          <div
+            className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg animate-pulse"
+            style={{ backgroundColor: accentColor || '#E5B6F2', color: '#33223B' }}
+          >
+            <Sparkles className="w-6 h-6 stroke-[2.2]" />
+          </div>
+          <div className="text-center">
+            <h2 className="text-sm sm:text-base font-bold text-white tracking-tight">Checking session...</h2>
+            <p className="text-xs text-zinc-400 mt-0.5">Restoring your workspace</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-screen overflow-hidden flex flex-col select-text font-sans bg-[#0c0d12] text-zinc-100 transition-colors duration-300">

@@ -19,17 +19,17 @@ router.get('/', async (req, res) => {
       [req.user.id]
     );
 
-    res.json({ conversations });
+    res.json({ success: true, conversations });
   } catch (error) {
     console.error('Fetch conversations error:', error);
-    res.status(500).json({ error: 'Failed to retrieve conversations.' });
+    res.status(500).json({ success: false, error: 'Failed to retrieve conversations.' });
   }
 });
 
 // POST /api/conversations - Create a new conversation
 router.post('/', async (req, res) => {
   try {
-    const { title, language = 'en', mode = 'general', system_prompt = '' } = req.body;
+    const { title, language = 'en', mode = 'general', system_prompt = '' } = req.body || {};
     const conversationId = randomUUID();
     const defaultTitle = title?.trim() || 'New Chat';
 
@@ -45,12 +45,13 @@ router.post('/', async (req, res) => {
     );
 
     res.status(201).json({
+      success: true,
       conversation: newConversation,
       messages: []
     });
   } catch (error) {
     console.error('Create conversation error:', error);
-    res.status(500).json({ error: 'Failed to create conversation.' });
+    res.status(500).json({ success: false, error: 'Failed to create conversation.' });
   }
 });
 

@@ -1,6 +1,8 @@
 // Comprehensive Authentication & API Response Verification Suite
 import http from 'http';
+import jwt from 'jsonwebtoken';
 import { parseJsonResponse } from '../client/src/utils/apiClient.js';
+import { getJwtSecret } from './middleware/auth.js';
 
 const BASE_URL = 'http://localhost:5000';
 
@@ -212,6 +214,41 @@ const runAuthSuite = async () => {
   assert(
     parserGuardPassed,
     'Client Guard 13: parseJsonResponse converts HTML document into descriptive error without crashing with "Unexpected token <"'
+  );
+
+  // 14. Protected API Route Access with Valid Token (Create & Read Conversation)
+  const createConvRes = await request('/api/conversations', 'POST', { title: 'Session Persistence Test' }, authToken);
+  assert(
+    createConvRes.status === 201 &&
+    createConvRes.data.success === true &&
+    createConvRes.data.conversation?.id,
+    'Protected API 14: Authenticated user can create persistent conversations'
+  );
+
+  const convListRes = await request('/api/conversations', 'GET', null, authToken);
+  assert(
+    convListRes.status === 200 &&
+    Array.isArray(convListRes.data.conversations) &&
+    convListRes.data.conversations.length > 0,
+    'Protected API 15: Authenticated user can retrieve their private conversations'
+  );
+
+  // 15. Unauthenticated Request to Protected Route (Returns 401 JSON)
+  const unauthRes = await request('/api/conversations', 'GET', null, null);
+  assert(
+    unauthRes.status === 401 &&
+    unauthRes.contentType.includes('application/json') &&
+    unauthRes.data.error.includes('Access token required'),
+    'Protected API 16: Unauthenticated request rejected with 401 JSON'
+  );
+
+  // 16. Expired Token Verification
+  const expiredToken = jwt.sign({ userId: loginRes.data.user.id }, getJwtSecret(), { expiresIn: '0s' });
+  const expiredRes = await request('/api/auth/me', 'GET', null, expiredToken);
+  assert(
+    expiredRes.status === 401 &&
+    expiredRes.data.error.includes('expired'),
+    'Token Expiration 17: Expired JWT token returns 401 with explicit expiration error'
   );
 
   console.log('\n================================================================');

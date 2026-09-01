@@ -4,16 +4,35 @@ import { getApiUrl, parseJsonResponse } from '../utils/apiClient';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('chatbot_token') || null);
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(() => {
+    try {
+      return localStorage.getItem('chatbot_token') || null;
+    } catch {
+      return null;
+    }
+  });
 
-  // Fetch current user on token change or initial load
+  const [user, setUser] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem('chatbot_user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [loading, setLoading] = useState(!!localStorage.getItem('chatbot_token'));
+
+  // Verify and refresh user profile whenever token changes or on initial mount
   useEffect(() => {
-    const fetchUser = async () => {
+    let isMounted = true;
+
+    const verifySession = async () => {
       if (!token) {
-        setUser(null);
-        setLoading(false);
+        if (isMounted) {
+          setUser(null);
+          setLoading(false);
+        }
         return;
       }
 
@@ -26,21 +45,42 @@ export const AuthProvider = ({ children }) => {
 
         if (res.ok) {
           const data = await parseJsonResponse(res);
-          setUser(data.user);
+          if (isMounted && data.user) {
+            setUser(data.user);
+            try {
+              localStorage.setItem('chatbot_user', JSON.stringify(data.user));
+            } catch (e) {}
+          }
+        } else if (res.status === 401 || res.status === 403) {
+          // Token is genuinely expired or invalid: clear session
+          console.warn('Session verification rejected (401/403). Clearing stale session.');
+          try {
+            localStorage.removeItem('chatbot_token');
+            localStorage.removeItem('chatbot_user');
+          } catch (e) {}
+          if (isMounted) {
+            setToken(null);
+            setUser(null);
+          }
         } else {
-          // Token expired or invalid
-          localStorage.removeItem('chatbot_token');
-          setToken(null);
-          setUser(null);
+          // 5xx / 4xx other than 401/403 / temporary network issue: keep cached user session
+          console.warn(`Session check returned non-auth status: ${res.status}. Preserving cached session.`);
         }
       } catch (err) {
-        console.error('Failed to verify user session:', err);
+        // Offline / network failure: keep cached session
+        console.warn('Network offline or error during session check. Preserving cached session:', err.message);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchUser();
+    verifySession();
+
+    return () => {
+      isMounted = false;
+    };
   }, [token]);
 
   const login = async (email, password) => {
@@ -55,9 +95,14 @@ export const AuthProvider = ({ children }) => {
       throw new Error(data.error || data.message || 'Failed to login');
     }
 
-    localStorage.setItem('chatbot_token', data.token);
+    try {
+      localStorage.setItem('chatbot_token', data.token);
+      localStorage.setItem('chatbot_user', JSON.stringify(data.user));
+    } catch (e) {}
+
     setToken(data.token);
     setUser(data.user);
+    setLoading(false);
     return data.user;
   };
 
@@ -73,9 +118,14 @@ export const AuthProvider = ({ children }) => {
       throw new Error(data.error || data.message || 'Failed to create account');
     }
 
-    localStorage.setItem('chatbot_token', data.token);
+    try {
+      localStorage.setItem('chatbot_token', data.token);
+      localStorage.setItem('chatbot_user', JSON.stringify(data.user));
+    } catch (e) {}
+
     setToken(data.token);
     setUser(data.user);
+    setLoading(false);
     return data.user;
   };
 
@@ -90,16 +140,25 @@ export const AuthProvider = ({ children }) => {
       throw new Error(data.error || data.message || 'Failed to initialize guest session');
     }
 
-    localStorage.setItem('chatbot_token', data.token);
+    try {
+      localStorage.setItem('chatbot_token', data.token);
+      localStorage.setItem('chatbot_user', JSON.stringify(data.user));
+    } catch (e) {}
+
     setToken(data.token);
     setUser(data.user);
+    setLoading(false);
     return data.user;
   };
 
   const logout = () => {
-    localStorage.removeItem('chatbot_token');
+    try {
+      localStorage.removeItem('chatbot_token');
+      localStorage.removeItem('chatbot_user');
+    } catch (e) {}
     setToken(null);
     setUser(null);
+    setLoading(false);
   };
 
   const updatePreferences = async (newPrefs) => {
@@ -115,7 +174,12 @@ export const AuthProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await parseJsonResponse(res);
-        setUser(data.user);
+        if (data.user) {
+          setUser(data.user);
+          try {
+            localStorage.setItem('chatbot_user', JSON.stringify(data.user));
+          } catch (e) {}
+        }
       }
     } catch (err) {
       console.error('Failed to sync preferences:', err);

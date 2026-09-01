@@ -3,12 +3,12 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { run, get } from '../db.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, getJwtSecret } from '../middleware/auth.js';
 
 const router = express.Router();
 
 const generateToken = (userId) => {
-  const secret = process.env.JWT_SECRET || 'chatbot_default_secret_key_2026';
+  const secret = getJwtSecret();
   return jwt.sign({ userId }, secret, { expiresIn: '30d' });
 };
 
