@@ -1,12 +1,11 @@
 [build]
-  base = "client"
-  command = "npm run build"
-  publish = "dist"
-  functions = "../netlify/functions"
+  command = "npm --prefix client install && npm --prefix client run build"
+  publish = "client/dist"
+  functions = "netlify/functions"
 
 [functions]
   node_bundler = "esbuild"
-  included_files = ["server/**"]
+  external_node_modules = ["sqlite3"]
 
 # 1. API Route Priority: Forward all API calls to Netlify Serverless API Function
 [[redirects]]
