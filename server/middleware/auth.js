@@ -6,6 +6,9 @@ export const getJwtSecret = () => {
   if (secret && secret.trim().length > 0) {
     return secret.trim();
   }
+  if (process.env.NODE_ENV === 'production' && !process.env.NETLIFY) {
+    console.error('⚠️ [SECURITY WARNING]: JWT_SECRET environment variable is missing in production! Please configure a strong JWT_SECRET.');
+  }
   return 'nexus_ai_secure_auth_session_jwt_secret_2026_key';
 };
 

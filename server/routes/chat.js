@@ -223,9 +223,14 @@ const getIntelligentLocalBrain = (prompt, history, language = 'en', mode = 'gene
 
   // Greetings & Acknowledgements
   const isGreeting = (
-    pLower === 'hi' || pLower === 'hello' || pLower === 'hey' ||
-    pLower.startsWith('hi ') || pLower.startsWith('hello ') || /^h+i+$/i.test(p) ||
-    pLower.includes('hello bhai') || pLower.includes('kaise ho') || pLower === 'brooooo'
+    pLower === 'hi' || pLower === 'hello' || pLower === 'hey' || pLower === 'hey there' ||
+    pLower === 'hello nexus' || pLower === 'hi nexus' || pLower === 'hello ai' || pLower === 'hi ai' ||
+    /^h+i+$/i.test(p) || pLower === 'hello bhai' || pLower === 'kaise ho' || pLower === 'brooooo'
+  ) || (
+    (pLower.startsWith('hi ') || pLower.startsWith('hello ') || pLower.startsWith('hey ')) &&
+    pLower.split(/\s+/).length <= 4 &&
+    !pLower.includes('python') && !pLower.includes('code') && !pLower.includes('tell me') &&
+    !pLower.includes('explain') && !pLower.includes('what') && !pLower.includes('how') && !pLower.includes('why')
   );
   if (isGreeting) {
     if (detected === 'hinglish') return `Hello bhai 😄 kya scene hai? Batao aaj kis cheez par kaam ya baat karni hai?`;

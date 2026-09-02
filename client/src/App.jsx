@@ -30,7 +30,7 @@ import { getApiUrl, parseJsonResponse } from './utils/apiClient';
 import { WifiOff, Maximize2, Minimize2, Search, Sparkles } from 'lucide-react';
 
 function App() {
-  const { user, token, loading } = useAuth();
+  const { user, token, loading, logout } = useAuth();
   const { theme, accentColor } = useTheme();
   const { showToast, playSound } = useToast();
 
@@ -434,8 +434,9 @@ function App() {
         console.error('Chat error:', err);
         const errMsg = err.message || 'Failed to send message';
         setError(errMsg);
-        if (errMsg.includes('expired') || errMsg.includes('user not found') || errMsg.includes('token')) {
+        if (errMsg.includes('expired') || errMsg.includes('user not found') || errMsg.includes('token') || errMsg.includes('Please log in')) {
           showToast('Your session has expired. Please log in again.', 'error');
+          if (logout) logout();
           setIsAuthOpen(true);
         } else {
           showToast(errMsg, 'error');
