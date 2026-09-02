@@ -1,2 +1,5 @@
+# 1. Forward API calls to Netlify serverless function handler
 /api/*  /.netlify/functions/api/:splat  200!
+
+# 2. SPA fallback for all client routes (Direct navigation & browser refresh)
 /*      /index.html                     200
