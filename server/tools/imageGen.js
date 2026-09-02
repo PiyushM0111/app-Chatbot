@@ -25,19 +25,19 @@ export const interpretImageRequest = (prompt, previousImageParams = null) => {
   const clean = prompt.trim();
   const lower = clean.toLowerCase();
 
-  // 1. Detect Aspect Ratio
+  // 1. Detect Aspect Ratio (Explicit ratios first, then descriptive orientation keywords)
   let aspectRatio = '1:1';
   let width = 1024;
   let height = 1024;
 
-  if (lower.includes('16:9') || lower.includes('landscape') || lower.includes('wallpaper') || lower.includes('banner')) {
-    aspectRatio = '16:9';
-    width = 1280;
-    height = 720;
-  } else if (lower.includes('9:16') || lower.includes('portrait') || lower.includes('story') || lower.includes('mobile') || lower.includes('poster')) {
+  if (lower.includes('9:16')) {
     aspectRatio = '9:16';
     width = 720;
     height = 1280;
+  } else if (lower.includes('16:9')) {
+    aspectRatio = '16:9';
+    width = 1280;
+    height = 720;
   } else if (lower.includes('4:3')) {
     aspectRatio = '4:3';
     width = 1024;
@@ -49,6 +49,18 @@ export const interpretImageRequest = (prompt, previousImageParams = null) => {
   } else if (lower.includes('3:2')) {
     aspectRatio = '3:2';
     width = 1080;
+    height = 720;
+  } else if (lower.includes('1:1') || lower.includes('square') || lower.includes('avatar') || lower.includes('icon')) {
+    aspectRatio = '1:1';
+    width = 1024;
+    height = 1024;
+  } else if (lower.includes('mobile') || lower.includes('portrait') || lower.includes('story') || lower.includes('poster') || lower.includes('vertical')) {
+    aspectRatio = '9:16';
+    width = 720;
+    height = 1280;
+  } else if (lower.includes('landscape') || lower.includes('wallpaper') || lower.includes('banner') || lower.includes('horizontal') || lower.includes('desktop')) {
+    aspectRatio = '16:9';
+    width = 1280;
     height = 720;
   }
 

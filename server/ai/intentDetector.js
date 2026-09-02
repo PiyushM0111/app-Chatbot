@@ -9,15 +9,15 @@ const IMAGE_GEN_PATTERNS = [
   // 2. Direct visual action verbs at start ("draw a...", "paint an...", "render a...", "visualize a...")
   /^(?:draw|paint|render|visualize|sketch|illustrate)\s+(?:an?|the)?\s*[\w\s]+/i,
 
-  // 3. English creation patterns ("generate an image", "create a picture", "make a photo", "create a 16:9 futuristic city", "create a vertical 9:16 poster", "create a square profile illustration", etc.)
-  /\b(?:generate|create|make|draw|paint|render|visualize|produce)\s+(?:an?|the)?\s*(?:[\d:]+|square|vertical|horizontal|portrait|landscape|realistic|cinematic|cartoon|vector|anime|3d|photorealistic|digital|minimalist|isometric)?\s*(?:[\d:]+|square|vertical|horizontal|portrait|landscape|profile)?\s*(?:image|picture|photo|photograph|scene|artwork|art|render|illustration|visual|graphic|wallpaper|portrait|concept art|poster|landscape|city|cat|drawing)\b/i,
+  // 3. English creation patterns ("generate an image", "create a picture", "make a photo", "create a 16:9 futuristic city", "create a vertical 9:16 poster", "create a 9:16 mobile wallpaper", "create a futuristic cyber security workspace", etc.)
+  /\b(?:generate|create|make|draw|paint|render|visualize|produce)\s+(?:an?|the)?\s*(?:[\d:]+|square|vertical|horizontal|portrait|landscape|realistic|cinematic|cartoon|vector|anime|3d|photorealistic|digital|minimalist|isometric|futuristic|cyber|security|modern|aesthetic|mobile|\s)*\s*(?:image|picture|photo|photograph|scene|artwork|art|render|illustration|visual|graphic|wallpaper|portrait|concept\s*art|poster|landscape|city|cat|drawing|workspace|environment|room|setup|design|view|avatar)\b/i,
 
-  // 3b. Direct artistic creation requests with style/dimensions
-  /\b(?:generate|create|make|render|draw|paint|sketch|illustrate)\s+(?:an?|the)?\s*(?:[\d:]+|vertical|horizontal|square)?\s*(?:[\d:]+)?\s*(?:cartoon|3d|photorealistic|cinematic|realistic|vector|anime|digital|pixel\s*art|minimalist|isometric)\s+[\w\s]+/i,
+  // 3b. Direct artistic creation requests with style/dimensions/subjects
+  /\b(?:generate|create|make|render|draw|paint|sketch|illustrate)\s+(?:an?|the)?\s*(?:[\d:]+|vertical|horizontal|square)?\s*(?:[\d:]+)?\s*(?:cartoon|3d|photorealistic|cinematic|realistic|vector|anime|digital|pixel\s*art|minimalist|isometric|futuristic)\s+[\w\s]+/i,
   /\b(?:generate|create|make|render|draw|paint)\s+(?:an?|the)?\s*(?:16:9|9:16|4:3|3:4|1:1|3:2)\s+[\w\s]+/i,
 
   // 4. "in which / of / showing" patterns
-  /\b(?:generate|create|make|render|draw)\s+(?:an?|the)?\s*(?:image|picture|photo|scene)\s+(?:in\s+which|of|showing|depicting|with|where)\b/i,
+  /\b(?:generate|create|make|render|draw)\s+(?:an?|the)?\s*(?:image|picture|photo|scene|visual|artwork)\s+(?:in\s+which|of|showing|depicting|with|where)\b/i,
 
   // 5. "show me an image/picture/photo of..."
   /\b(?:show\s+me|display|give\s+me)\s+(?:an?|the)?\s*(?:image|picture|photo|visual|artwork)\s+(?:of|with|showing)?\b/i,

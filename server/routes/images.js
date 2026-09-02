@@ -18,9 +18,27 @@ router.get('/', async (req, res) => {
       ...img,
       parameters: typeof img.parameters === 'string' ? JSON.parse(img.parameters || '{}') : img.parameters
     }));
-    res.json({ images: parsed });
+    res.json({ success: true, images: parsed });
   } catch (err) {
     console.error('Error fetching images:', err);
+    res.status(500).json({ error: 'Failed to retrieve image gallery.' });
+  }
+});
+
+// GET /api/images/gallery - Alias for listing user generated images
+router.get('/gallery', async (req, res) => {
+  try {
+    const images = await query(
+      'SELECT * FROM generated_images WHERE user_id = ? ORDER BY created_at DESC',
+      [req.user.id]
+    );
+    const parsed = images.map(img => ({
+      ...img,
+      parameters: typeof img.parameters === 'string' ? JSON.parse(img.parameters || '{}') : img.parameters
+    }));
+    res.json({ success: true, images: parsed });
+  } catch (err) {
+    console.error('Error fetching image gallery:', err);
     res.status(500).json({ error: 'Failed to retrieve image gallery.' });
   }
 });
