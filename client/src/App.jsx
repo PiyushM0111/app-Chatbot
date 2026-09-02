@@ -27,7 +27,7 @@ import SearchInChatModal from './components/SearchInChatModal';
 import ReadingModeModal from './components/ReadingModeModal';
 import CodeDiffModal from './components/CodeDiffModal';
 import { getApiUrl, parseJsonResponse } from './utils/apiClient';
-import { WifiOff, Maximize2, Minimize2, Search } from 'lucide-react';
+import { WifiOff, Maximize2, Minimize2, Search, Sparkles } from 'lucide-react';
 
 function App() {
   const { user, token, loading } = useAuth();
