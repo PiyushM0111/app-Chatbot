@@ -178,13 +178,15 @@ export const classifyIntent = (input, history = []) => {
     lower.startsWith('web pe search') || lower.startsWith('google pe search') || lower.startsWith('find on the web')
   );
 
-  // 7b. Website-specific lookups (e.g. "from SIH website", "on official portal", "SIH website")
+  // 7b. Website-specific lookups (e.g. "from SIH website", "on official portal", "SIH website", "What is SIH?")
   const isWebsiteSpecific = (
+    /\b(?:sih|smart india hackathon)\b/i.test(lower) ||
     lower.includes('sih website') || lower.includes('from sih') || lower.includes('official website') ||
     lower.includes('official portal') || lower.includes('sih official') || lower.includes('smart india hackathon') ||
     lower.includes('sih edition') || lower.includes('conducting this edition') || lower.includes('conducting sih') ||
     lower.includes('conducting this year') || lower.includes('sih problem statements') || lower.includes('on the website') ||
-    lower.includes('from website') || lower.includes('from the official')
+    lower.includes('from website') || lower.includes('from the official') || lower.includes('open/search') ||
+    lower.includes('search the official') || lower.includes('open the official')
   );
 
   // 7c. Live / Current events / News / Status
@@ -192,20 +194,22 @@ export const classifyIntent = (input, history = []) => {
     lower.includes('latest news') || lower.includes('today\'s news') || lower.includes('breaking news') ||
     lower.includes('current news') || lower.includes('latest update') || lower.includes('recent update') ||
     lower.includes('current price') || lower.includes('stock price') || lower.includes('today\'s weather') ||
-    lower.includes('current weather') || lower.includes('weather in ') || lower.includes('who won recently') ||
-    lower.includes('latest score') || lower.includes('match score') || lower.includes('latest cybersecurity news') ||
-    lower.includes('cybersecurity news') || lower.includes('recent cyber attack') || lower.includes('latest release') ||
-    lower.includes('latest python release') || lower.includes('latest version of python') || lower.includes('latest version of') ||
-    lower.includes('recent developments') || lower.includes('newest version')
+    lower.includes('current weather') || lower.includes('weather in') || lower.includes('weather of') ||
+    (lower.includes('weather') && (lower.includes('delhi') || lower.includes('mumbai') || lower.includes('today'))) ||
+    lower.includes('who won recently') || lower.includes('latest score') || lower.includes('match score') ||
+    lower.includes('latest cybersecurity news') || lower.includes('cybersecurity news') || lower.includes('recent cyber attack') ||
+    lower.includes('latest release') || lower.includes('latest python release') || lower.includes('latest version of python') ||
+    lower.includes('latest version of') || lower.includes('recent developments') || lower.includes('newest version')
   );
 
-  // 7d. External factual directories / Local institutional lookups
+  // 7d. External factual directories / Local institutional lookups / Government Officials
   const isExternalFactualLookup = (
     lower.includes('colleges offering') || lower.includes('universities offering') || lower.includes('institutes offering') ||
     (lower.includes('near dehradun') || lower.includes('in dehradun') || lower.includes('in delhi') || lower.includes('in mumbai')) &&
     (lower.includes('college') || lower.includes('university') || lower.includes('bca') || lower.includes('course')) ||
     lower.includes('bca cyber security') || lower.includes('compare these two current') ||
-    lower.includes('who is the current') || lower.includes('current ceo of') || lower.includes('current prime minister')
+    lower.includes('who is the current') || lower.includes('current ceo of') || lower.includes('current prime minister') ||
+    lower.includes('prime minister of india') || lower.includes('pm of india') || lower.includes('president of india')
   );
 
   // 7e. Contextual follow-up queries (e.g. "How many topics are there?" following a SIH or live entity question)
