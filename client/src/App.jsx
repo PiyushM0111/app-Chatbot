@@ -383,6 +383,10 @@ function App() {
             try {
               const data = JSON.parse(line.slice(6));
 
+              if (data.status) {
+                setGenerationStatus(data.status);
+              }
+
               if (data.chunk) {
                 streamedText += data.chunk;
                 setMessages((prev) =>

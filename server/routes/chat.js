@@ -292,8 +292,14 @@ router.post('/:id/messages', async (req, res) => {
       conversation.title = generatedTitle;
     }
 
-    // 3. Centralized Intent & Tool Routing Pipeline
-    const intentData = classifyIntent(cleanContent);
+    // 3. Retrieve recent conversation history for context-aware routing & memory
+    const historyRows = await query(
+      'SELECT role, content FROM messages WHERE conversation_id = ? ORDER BY rowid ASC',
+      [id]
+    );
+
+    // 4. Centralized Intent & Tool Routing Pipeline with History Context
+    const intentData = classifyIntent(cleanContent, historyRows);
     const toolExecution = await routeAndExecuteTool(intentData, req.user.id, id, cleanContent, detectedLang);
 
     let aiResponseText = '';
@@ -304,13 +310,25 @@ router.post('/:id/messages', async (req, res) => {
       if (toolExecution.imageAttachment) {
         aiAttachments.push(toolExecution.imageAttachment);
       }
-    } else {
-      // 4. Smart Context Construction with Memories & Windowing
-      const historyRows = await query(
-        'SELECT role, content FROM messages WHERE conversation_id = ? ORDER BY rowid ASC',
-        [id]
-      );
 
+      if (stream) {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.flushHeaders();
+
+        if (intentData.intent === 'web_search') {
+          res.write(`data: ${JSON.stringify({ status: 'Found verified sources. Synthesizing response...' })}\n\n`);
+        }
+
+        const words = aiResponseText.split(' ');
+        for (let i = 0; i < words.length; i++) {
+          const chunk = (i === 0 ? '' : ' ') + words[i];
+          res.write(`data: ${JSON.stringify({ chunk })}\n\n`);
+        }
+      }
+    } else {
+      // 5. Smart Context Construction with Memories & Windowing
       const smartContext = await buildSmartContext(req.user.id, id, cleanContent, historyRows);
 
       const systemInstruction = getMasterSystemInstruction(

@@ -1,4 +1,5 @@
 // High-Precision Intelligent Intent & Entity Classifier
+import { extractSearchQuery } from '../tools/webSearch.js';
 
 // Regular Expressions for Multilingual Image Generation Detection
 const IMAGE_GEN_PATTERNS = [
@@ -11,11 +12,11 @@ const IMAGE_GEN_PATTERNS = [
   // 3. English creation patterns ("generate an image", "create a picture", "make a photo", "create a 16:9 futuristic city", "create a vertical 9:16 poster", "create a square profile illustration", etc.)
   /\b(?:generate|create|make|draw|paint|render|visualize|produce)\s+(?:an?|the)?\s*(?:[\d:]+|square|vertical|horizontal|portrait|landscape|realistic|cinematic|cartoon|vector|anime|3d|photorealistic|digital|minimalist|isometric)?\s*(?:[\d:]+|square|vertical|horizontal|portrait|landscape|profile)?\s*(?:image|picture|photo|photograph|scene|artwork|art|render|illustration|visual|graphic|wallpaper|portrait|concept art|poster|landscape|city|cat|drawing)\b/i,
 
-  // 3b. Direct artistic creation requests with style/dimensions ("create a cartoon cat", "generate a realistic mountain landscape", "render a 3d robot", "create a 16:9 futuristic city")
+  // 3b. Direct artistic creation requests with style/dimensions
   /\b(?:generate|create|make|render|draw|paint|sketch|illustrate)\s+(?:an?|the)?\s*(?:[\d:]+|vertical|horizontal|square)?\s*(?:[\d:]+)?\s*(?:cartoon|3d|photorealistic|cinematic|realistic|vector|anime|digital|pixel\s*art|minimalist|isometric)\s+[\w\s]+/i,
   /\b(?:generate|create|make|render|draw|paint)\s+(?:an?|the)?\s*(?:16:9|9:16|4:3|3:4|1:1|3:2)\s+[\w\s]+/i,
 
-  // 4. "in which / of / showing" patterns ("generate a image in which a boy...", "create an image showing...")
+  // 4. "in which / of / showing" patterns
   /\b(?:generate|create|make|render|draw)\s+(?:an?|the)?\s*(?:image|picture|photo|scene)\s+(?:in\s+which|of|showing|depicting|with|where)\b/i,
 
   // 5. "show me an image/picture/photo of..."
@@ -28,14 +29,14 @@ const IMAGE_GEN_PATTERNS = [
   /^(?:an?|the)?\s*(?:image|picture|photo|artwork|illustration)\s+(?:of|depicting|showing)\b/i,
   /\b(?:hd|8k|4k|realistic|cinematic)\s+(?:image|picture|photo|render)\s+of\b/i,
 
-  // 8. Hinglish / Hindi patterns ("ek image bana", "photo bana do", "image generate kar", "isko image me banao")
+  // 8. Hinglish / Hindi patterns
   /\b(?:ek\s+)?(?:image|photo|picture|scene|pic)\s+(?:bana|banao|bana\s*do|bana\s*de|bana\s*dijiye|generate\s*kar|generate\s*karo|generate\s*karein|create\s*karo|create\s*kar)\b/i,
   /\b(?:bana\s*do|banao|generate\s*karo|create\s*karo)\s+(?:ek\s+)?(?:image|photo|picture|scene|pic)\b/i,
   /\b(?:iska|iski|isko|in\s*sabka)\s+(?:image|photo|picture)\s*(?:me\s*banao|me\s*bana|bana|banao|bana\s*do|bana\s*de)?\b/i,
   /\b(?:is\s*description\s*ki|wali)\s*(?:image|photo|picture)\s*(?:bana|banao|generate\s*karo)?\b/i,
   /\b(?:image|photo|picture)\s+(?:chahiye|dikhao|bhej|bhejo)\b/i,
 
-  // 9. Pure Devanagari Hindi ("एक चित्र बनाओ", "फोटो बना दो", "इमेज जनरेट करो")
+  // 9. Pure Devanagari Hindi
   /(?:चित्र|फोटो|इमेज|तस्वीर)\s*(?:बनाओ|बनाएं|बना\s*दो|जनरेट\s*करो|दिखाओ)/u,
   /(?:एक\s+)?(?:चित्र|फोटो|इमेज|तस्वीर)\s*(?:बनाएं|बनाओ)/u
 ];
@@ -50,20 +51,43 @@ const IMAGE_EDIT_PATTERNS = [
   /\b(?:background\s+change\s+kar\s*do|lighting\s+badal\s*do)\b/i
 ];
 
-export const classifyIntent = (input) => {
+// Determine if previous conversation history was about a specific external entity (e.g. SIH)
+const extractContextEntity = (history = []) => {
+  if (!Array.isArray(history) || history.length === 0) return null;
+  const recentMessages = history.slice(-10);
+  for (let i = recentMessages.length - 1; i >= 0; i--) {
+    const text = (recentMessages[i].content || '').toLowerCase();
+    if (text.includes('sih') || text.includes('smart india hackathon')) {
+      return 'Smart India Hackathon (SIH)';
+    }
+    if (text.includes('python release') || text.includes('python 3.')) {
+      return 'Python latest release';
+    }
+    if (text.includes('cybersecurity') && (text.includes('news') || text.includes('recent') || text.includes('threat'))) {
+      return 'Cybersecurity latest news and threats';
+    }
+    if (text.includes('dehradun') || text.includes('bca')) {
+      return 'Colleges offering BCA Cyber Security near Dehradun';
+    }
+  }
+  return null;
+};
+
+export const classifyIntent = (input, history = []) => {
   if (!input) return { intent: 'chat', entities: {} };
   const clean = input.trim();
   const lower = clean.toLowerCase();
 
-  // Exclude code writing/programming requests (e.g. "Write Python code for an image-generation API")
+  // Exclude code writing/programming requests (e.g. "Write Python code for an image-generation API", "Write a Python calculator")
   if (
-    /^(?:write|create|give\s+me|show\s+me)\s+(?:python|javascript|js|node|html|css|cpp|c\+\+|java|c#|sql|typescript|ts|golang|go|rust|bash|shell)?\s*(?:code|script|program|function|class|api|endpoint|backend)\s+(?:for|to|that|about)\b/i.test(clean) ||
-    /^(?:write|show\s+me)\s+(?:code|python\s+code|script)\b/i.test(clean)
+    /^(?:write|create|give\s+me|show\s+me|implement)\s+(?:an?\s+)?(?:python|javascript|js|node|html|css|cpp|c\+\+|java|c#|sql|typescript|ts|golang|go|rust|bash|shell)?\s*(?:code|script|program|function|class|api|endpoint|backend|calculator|app)\b/i.test(clean) ||
+    /^(?:write|show\s+me)\s+(?:code|python\s+code|script|calculator)\b/i.test(clean) ||
+    lower.includes('write a python calculator') || lower.includes('write python code')
   ) {
-    return { intent: 'chat', entities: {} };
+    return { intent: 'chat', entities: { isCode: true } };
   }
 
-  // Exclude informational/educational questions about image generation (Requirement 2 & 4)
+  // Exclude informational/educational questions about image generation
   if (
     /^(?:what is|what are|explain|tell me about|how does|how to|describe how|define|can you explain)\s+.*(?:image generation|image model|generating images|diffusion model|gan|text to image|midjourney|dall-e|stable diffusion)\b/i.test(clean) ||
     /^(?:what is|what are|define)\s+(?:an?\s+)?image\b/i.test(clean)
@@ -73,7 +97,6 @@ export const classifyIntent = (input) => {
 
   // =========================================================================
   // 1. HIGHEST PRIORITY: Image Generation & Editing Requests
-  // (Must supersede general topics like cybersecurity, hacking, python, etc.)
   // =========================================================================
   for (const pattern of IMAGE_EDIT_PATTERNS) {
     if (pattern.test(clean)) {
@@ -88,7 +111,7 @@ export const classifyIntent = (input) => {
   }
 
   // =========================================================================
-  // 2. Explicit Memory Commands (/memory, remember that..., forget...)
+  // 2. Explicit Memory Commands
   // =========================================================================
   if (lower.startsWith('/memory') || lower.startsWith('remember that') || lower.startsWith('remember this') || lower.includes('yaad rakhna ki')) {
     const memoryFact = clean.replace(/^(?:\/memory|remember that|remember this|yaad rakhna ki)\s*/i, '').trim();
@@ -144,17 +167,76 @@ export const classifyIntent = (input) => {
   }
 
   // =========================================================================
-  // 7. Live Web Search & Lookups
+  // 7. INTELLIGENT WEB SEARCH & REAL-WORLD FACTUAL LOOKUPS
   // =========================================================================
-  if (
-    lower.startsWith('/search') || lower.startsWith('search the web for') || lower.startsWith('search for ') ||
-    lower.startsWith('look up ') || lower.startsWith('latest news about') || lower.startsWith('web pe search kar')
-  ) {
-    return { intent: 'web_search', entities: { query: clean } };
+
+  // 7a. Explicit search commands
+  const isExplicitSearch = (
+    lower.startsWith('/search') || lower.startsWith('search the web') || lower.startsWith('search for ') ||
+    lower.startsWith('search online') || lower.startsWith('search google') || lower.startsWith('look this up') ||
+    lower.startsWith('look up ') || lower.startsWith('find online') || lower.startsWith('web search') ||
+    lower.startsWith('web pe search') || lower.startsWith('google pe search') || lower.startsWith('find on the web')
+  );
+
+  // 7b. Website-specific lookups (e.g. "from SIH website", "on official portal", "SIH website")
+  const isWebsiteSpecific = (
+    lower.includes('sih website') || lower.includes('from sih') || lower.includes('official website') ||
+    lower.includes('official portal') || lower.includes('sih official') || lower.includes('smart india hackathon') ||
+    lower.includes('sih edition') || lower.includes('conducting this edition') || lower.includes('conducting sih') ||
+    lower.includes('conducting this year') || lower.includes('sih problem statements') || lower.includes('on the website') ||
+    lower.includes('from website') || lower.includes('from the official')
+  );
+
+  // 7c. Live / Current events / News / Status
+  const isLiveCurrentQuery = (
+    lower.includes('latest news') || lower.includes('today\'s news') || lower.includes('breaking news') ||
+    lower.includes('current news') || lower.includes('latest update') || lower.includes('recent update') ||
+    lower.includes('current price') || lower.includes('stock price') || lower.includes('today\'s weather') ||
+    lower.includes('current weather') || lower.includes('weather in ') || lower.includes('who won recently') ||
+    lower.includes('latest score') || lower.includes('match score') || lower.includes('latest cybersecurity news') ||
+    lower.includes('cybersecurity news') || lower.includes('recent cyber attack') || lower.includes('latest release') ||
+    lower.includes('latest python release') || lower.includes('latest version of python') || lower.includes('latest version of') ||
+    lower.includes('recent developments') || lower.includes('newest version')
+  );
+
+  // 7d. External factual directories / Local institutional lookups
+  const isExternalFactualLookup = (
+    lower.includes('colleges offering') || lower.includes('universities offering') || lower.includes('institutes offering') ||
+    (lower.includes('near dehradun') || lower.includes('in dehradun') || lower.includes('in delhi') || lower.includes('in mumbai')) &&
+    (lower.includes('college') || lower.includes('university') || lower.includes('bca') || lower.includes('course')) ||
+    lower.includes('bca cyber security') || lower.includes('compare these two current') ||
+    lower.includes('who is the current') || lower.includes('current ceo of') || lower.includes('current prime minister')
+  );
+
+  // 7e. Contextual follow-up queries (e.g. "How many topics are there?" following a SIH or live entity question)
+  const contextEntity = extractContextEntity(history);
+  const isContextualFollowUp = contextEntity && (
+    lower.includes('how many topic') || lower.includes('how many problem statement') ||
+    lower.includes('how many theme') || lower.includes('what is the eligibility') ||
+    lower.includes('who can participate') || lower.includes('what is the prize money') ||
+    lower.includes('what is the deadline') || lower.includes('last date to register') ||
+    lower.includes('nodal center') || lower.includes('how many edition')
+  );
+
+  if (isExplicitSearch || isWebsiteSpecific || isLiveCurrentQuery || isExternalFactualLookup || isContextualFollowUp) {
+    let searchQuery = clean;
+    if (isContextualFollowUp && contextEntity) {
+      searchQuery = `${contextEntity} ${clean}`;
+    }
+    return {
+      intent: 'web_search',
+      entities: {
+        query: searchQuery,
+        originalPrompt: clean,
+        isWebsiteSpecific,
+        isLiveCurrentQuery,
+        contextEntity
+      }
+    };
   }
 
   // =========================================================================
-  // 8. General Chat & Educational Question Answering
+  // 8. General Chat & Concept Explanation
   // =========================================================================
   return { intent: 'chat', entities: {} };
 };

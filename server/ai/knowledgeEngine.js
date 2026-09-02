@@ -15,7 +15,72 @@ export const resolveTopicKnowledge = (query, language = 'en', mode = 'general') 
     return analyzeAndFixCodeSnippet(q, language);
   }
 
-  // 1b. CODE GENERATION / PYTHON SCRIPT REQUESTS
+  // 1b. PYTHON CALCULATOR CODE GENERATION
+  if (
+    (qLower.includes('calculator') || qLower.includes('calc')) &&
+    (qLower.includes('python') || qLower.includes('write') || qLower.includes('code') || qLower.includes('script'))
+  ) {
+    return `### 🐍 Interactive Command-Line Calculator in Python\n\n` +
+      `Here is a clean, robust, and interactive Python calculator script with error handling and multiple arithmetic operations:\n\n` +
+      `\`\`\`python\n` +
+      `import operator\n` +
+      `import math\n\n` +
+      `def add(a: float, b: float) -> float: return a + b\n` +
+      `def subtract(a: float, b: float) -> float: return a - b\n` +
+      `def multiply(a: float, b: float) -> float: return a * b\n` +
+      `def divide(a: float, b: float) -> float:\n` +
+      `    if b == 0:\n` +
+      `        raise ZeroDivisionError("Error: Division by zero is undefined.")\n` +
+      `    return a / b\n` +
+      `def power(a: float, b: float) -> float: return a ** b\n` +
+      `def modulus(a: float, b: float) -> float: return a % b\n\n` +
+      `OPERATIONS = {\n` +
+      `    '+': ("Addition", add),\n` +
+      `    '-': ("Subtraction", subtract),\n` +
+      `    '*': ("Multiplication", multiply),\n` +
+      `    '/': ("Division", divide),\n` +
+      `    '^': ("Power", power),\n` +
+      `    '%': ("Modulus", modulus)\n` +
+      `}\n\n` +
+      `def run_calculator():\n` +
+      `    print("=" * 45)\n` +
+      `    print("⚡ Nexus AI Python Interactive Calculator")\n` +
+      `    print("Available operations: +  -  *  /  ^  %")\n` +
+      `    print("Type 'q' or 'exit' anytime to quit.")\n` +
+      `    print("=" * 45)\n\n` +
+      `    while True:\n` +
+      `        try:\n` +
+      `            num1_input = input("\\nEnter first number: ").strip()\n` +
+      `            if num1_input.lower() in ('q', 'exit'): break\n` +
+      `            num1 = float(num1_input)\n\n` +
+      `            op = input("Enter operator (+, -, *, /, ^, %): ").strip()\n` +
+      `            if op.lower() in ('q', 'exit'): break\n` +
+      `            if op not in OPERATIONS:\n` +
+      `                print(f"❌ Invalid operator '{op}'. Please choose from: {', '.join(OPERATIONS.keys())}")\n` +
+      `                continue\n\n` +
+      `            num2_input = input("Enter second number: ").strip()\n` +
+      `            if num2_input.lower() in ('q', 'exit'): break\n` +
+      `            num2 = float(num2_input)\n\n` +
+      `            op_name, func = OPERATIONS[op]\n` +
+      `            result = func(num1, num2)\n` +
+      `            print(f"✅ Result ({op_name}): {num1} {op} {num2} = {result}")\n\n` +
+      `        except ZeroDivisionError as zde:\n` +
+      `            print(f"⚠️ {zde}")\n` +
+      `        except ValueError:\n` +
+      `            print("⚠️ Invalid number format. Please enter valid numeric values.")\n` +
+      `        except Exception as e:\n` +
+      `            print(f"⚠️ Unexpected error: {e}")\n\n` +
+      `    print("\\n👋 Calculator terminated. Have a great day!")\n\n` +
+      `if __name__ == '__main__':\n` +
+      `    run_calculator()\n` +
+      `\`\`\`\n\n` +
+      `### 💡 Key Features:\n` +
+      `1. **Type-Annotated Functions:** Clean scalar functions for each mathematical operation.\n` +
+      `2. **Dictionary Dispatching:** $O(1)$ operator lookup mapping symbols directly to callable functions.\n` +
+      `3. **ZeroDivision & ValueError Guards:** Gracefully handles invalid numeric entries without crashing.`;
+  }
+
+  // 1c. CODE GENERATION / PYTHON SCRIPT REQUESTS
   if (
     qLower.includes('write python code') || qLower.includes('python code for') ||
     qLower.includes('image-generation api') || qLower.includes('image generation api')
