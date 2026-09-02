@@ -209,6 +209,62 @@ function App() {
     [token, showToast]
   );
 
+  // Parse and sync SPA Route from window.location.pathname
+  const syncRouteFromPath = useCallback(() => {
+    try {
+      const path = window.location.pathname || '/';
+      const cleanPath = path.replace(/\/+$/, '') || '/';
+
+      if (cleanPath === '/settings') {
+        setIsSettingsOpen(true);
+      } else if (cleanPath === '/history') {
+        setIsHistoryOpen(true);
+      } else if (cleanPath === '/gallery') {
+        setIsImageGalleryOpen(true);
+      } else if (cleanPath === '/notes') {
+        setIsNotesOpen(true);
+      } else if (cleanPath === '/memory') {
+        setIsMemoryOpen(true);
+      } else if (cleanPath === '/projects') {
+        setIsProjectsOpen(true);
+      } else if (cleanPath === '/learning') {
+        setIsLearningOpen(true);
+      } else if (cleanPath.startsWith('/chat/') || cleanPath.startsWith('/c/')) {
+        const parts = cleanPath.split('/');
+        const convId = parts[2];
+        if (convId && convId !== currentConversationId) {
+          loadConversation(convId);
+        }
+      }
+    } catch (e) {
+      console.warn('Route sync error:', e);
+    }
+  }, [currentConversationId, loadConversation]);
+
+  // Sync route on mount and browser navigation (Back/Forward)
+  useEffect(() => {
+    if (token) {
+      syncRouteFromPath();
+    }
+    const handlePopState = () => syncRouteFromPath();
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [token, syncRouteFromPath]);
+
+  // Sync address bar URL with active conversation ID
+  useEffect(() => {
+    try {
+      const path = window.location.pathname || '/';
+      if (currentConversationId) {
+        if (!path.includes(currentConversationId)) {
+          window.history.replaceState(null, '', `/chat/${currentConversationId}`);
+        }
+      } else if (path.startsWith('/chat/') || path.startsWith('/c/')) {
+        window.history.replaceState(null, '', '/');
+      }
+    } catch (e) {}
+  }, [currentConversationId]);
+
   // Start fresh chat
   const handleNewChat = useCallback(() => {
     if (abortControllerRef.current) {
@@ -222,6 +278,9 @@ function App() {
     setError(null);
     setIsLoading(false);
     setIsRegenerating(false);
+    try {
+      window.history.replaceState(null, '', '/');
+    } catch (e) {}
   }, []);
 
   // Handle Drag & Drop Files
