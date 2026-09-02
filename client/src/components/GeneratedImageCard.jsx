@@ -41,21 +41,30 @@ const GeneratedImageCard = ({
     setIsDownloading(true);
     const ext = attachment.mimeType === 'image/jpeg' ? 'jpg' : attachment.mimeType === 'image/webp' ? 'webp' : 'png';
     try {
-      const response = await fetch(imageUrl, { mode: 'cors' });
-      if (!response.ok) throw new Error('Network response was not ok');
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
       const cleanSlug = subject.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30);
       const filename = `nexus-ai-image-${attachment.generationId || cleanSlug || Date.now()}.${ext}`;
 
-      const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(blobUrl);
+      if (imageUrl.startsWith('data:')) {
+        const link = document.createElement('a');
+        link.href = imageUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        const response = await fetch(imageUrl, { mode: 'cors' });
+        if (!response.ok) throw new Error('Network response was not ok');
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }
 
       showToast('Image downloaded successfully!', 'success');
     } catch (err) {

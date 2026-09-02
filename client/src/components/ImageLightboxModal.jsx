@@ -14,14 +14,29 @@ const ImageLightboxModal = ({ isOpen, onClose, imageUrl, alt = 'Generated Image'
 
   const handleDownload = async () => {
     try {
-      const a = document.createElement('a');
-      a.href = imageUrl;
-      a.download = `nexus_art_${Date.now()}.png`;
-      a.target = '_blank';
-      a.click();
-      showToast('Image download started!', 'success');
+      if (imageUrl.startsWith('data:')) {
+        const a = document.createElement('a');
+        a.href = imageUrl;
+        a.download = `nexus_art_${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } else {
+        const res = await fetch(imageUrl, { mode: 'cors' });
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `nexus_art_${Date.now()}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      }
+      showToast('Image downloaded successfully!', 'success');
     } catch {
-      showToast('Download failed', 'error');
+      window.open(imageUrl, '_blank');
+      showToast('Opened image in new tab', 'info');
     }
   };
 

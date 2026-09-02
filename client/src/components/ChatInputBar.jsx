@@ -52,7 +52,12 @@ const ChatInputBar = ({
     if (text.startsWith('/image') || text.includes('generate image') || text.includes('create an image') || text.includes('draw a') || text.includes('photo of')) {
       return { icon: Image, label: 'Image Studio Intent', color: '#38BDF8' };
     }
-    if (text.startsWith('/search') || text.includes('search web') || text.includes('look up latest')) {
+    if (
+      text.startsWith('/search') || text.includes('search web') || text.includes('look up') ||
+      text.includes('sih') || text.includes('smart india hackathon') || text.includes('latest news') ||
+      text.includes('latest release') || text.includes('today\'s weather') || text.includes('current price') ||
+      text.includes('colleges offering') || text.includes('official website')
+    ) {
       return { icon: Globe, label: 'Live Web Search', color: '#10B981' };
     }
     if (text.includes('def ') || text.includes('function ') || text.startsWith('/code') || text.includes('build api') || text.includes('fix this code')) {
