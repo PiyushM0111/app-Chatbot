@@ -639,7 +639,7 @@ function App() {
   // Startup session verification screen (Prevents initial flash & session loop)
   if (loading && token && !user) {
     return (
-      <div className="relative w-full h-screen overflow-hidden flex flex-col items-center justify-center bg-[#0c0d12] text-zinc-100 font-sans select-none">
+      <div className="relative w-full h-screen overflow-hidden flex flex-col items-center justify-center bg-[var(--theme-bg-base,#0B0E17)] text-zinc-100 font-sans select-none">
         <AtmosphericBackground />
         <div className="relative z-10 flex flex-col items-center gap-3.5 p-6 rounded-3xl bg-zinc-900/80 backdrop-blur-xl border border-white/10 shadow-2xl animate-scaleUp">
           <div
@@ -658,7 +658,7 @@ function App() {
   }
 
   return (
-    <div className="relative w-full h-screen overflow-hidden flex flex-col select-text font-sans bg-[#0c0d12] text-zinc-100 transition-colors duration-300">
+    <div className="relative w-full h-screen overflow-hidden flex flex-col select-text font-sans bg-transparent text-zinc-100 transition-colors duration-300">
       {/* Dynamic Multi-Atmosphere Background Canvas */}
       <AtmosphericBackground />
 
@@ -754,6 +754,7 @@ function App() {
           isLoading={isLoading || isRegenerating}
           onOpenPrompts={() => setIsPromptLibraryOpen(true)}
           onOpenShortcuts={() => setIsShortcutsOpen(true)}
+          onOpenModes={() => setIsModesOpen(true)}
           onNewChat={handleNewChat}
           currentMode={currentMode}
         />
