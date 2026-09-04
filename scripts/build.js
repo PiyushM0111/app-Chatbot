@@ -3,7 +3,10 @@ import path from 'path';
 import { execSync } from 'child_process';
 
 console.log('📦 [1/3] Building Vite React client for production...');
-execSync('npm --prefix client install && npm --prefix client run build', { stdio: 'inherit' });
+if (!fs.existsSync(path.resolve('client', 'node_modules'))) {
+  execSync('npm --prefix client install', { stdio: 'inherit' });
+}
+execSync('npm --prefix client run build', { stdio: 'inherit' });
 
 console.log('📦 [2/3] Mirroring build distribution to dist/ and client/dist/...');
 const clientDist = path.resolve('client', 'dist');

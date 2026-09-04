@@ -61,7 +61,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use(express.json({ limit: '10mb' }));
-app.use('/api', rateLimiter({ max: 150, windowMs: 60 * 1000 }));
+app.use('/api', rateLimiter({ max: process.env.NODE_ENV === 'test' ? 10000 : 600, windowMs: 60 * 1000 }));
 
 // Multi-Subsystem Health & Status Monitoring Endpoint
 app.get(['/api/health', '/health'], (req, res) => {

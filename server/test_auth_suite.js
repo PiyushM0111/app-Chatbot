@@ -243,7 +243,10 @@ const runAuthSuite = async () => {
   );
 
   // 16. Expired Token Verification
-  const expiredToken = jwt.sign({ userId: loginRes.data.user.id }, getJwtSecret(), { expiresIn: '0s' });
+  const expiredToken = jwt.sign(
+    { userId: loginRes.data.user.id, exp: Math.floor(Date.now() / 1000) - 60 },
+    getJwtSecret()
+  );
   const expiredRes = await request('/api/auth/me', 'GET', null, expiredToken);
   assert(
     expiredRes.status === 401 &&

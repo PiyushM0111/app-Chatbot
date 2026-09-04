@@ -38,3 +38,7 @@ export const rateLimiter = (options = {}) => {
     next();
   };
 };
+
+export const resetRateLimits = () => {
+  requestCounts.clear();
+};
